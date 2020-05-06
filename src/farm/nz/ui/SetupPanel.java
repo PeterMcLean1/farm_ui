@@ -21,7 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import farm.nz.FarmApplication;
+import farm.nz.FarmUIApplication;
+import farm.nz.model.Game;
 import farm.nz.type.FarmType;
 
 public class SetupPanel extends JPanel {
@@ -36,11 +37,11 @@ public class SetupPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public SetupPanel(FarmApplication jframe) {
-		initialise();
+	public SetupPanel(FarmUIApplication jframe, Game game) {
+		initialise(game);
 	}
 
-	private void initialise() {
+	private void initialise(Game game) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 118, 22, 59, 55, 31, 29, 30, 22, 0 };
 		gridBagLayout.rowHeights = new int[] { 22, 20, 22, 31, 20, 0 };

@@ -11,12 +11,17 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import farm.nz.model.Farm;
+import farm.nz.model.Farmer;
+import farm.nz.model.Game;
+import farm.nz.model.Paddock;
+import farm.nz.type.FarmType;
 import farm.nz.ui.FarmPanel;
 import farm.nz.ui.InstructionPanel;
 import farm.nz.ui.SetupPanel;
 import farm.nz.ui.StorePanel;
 
-public class FarmApplication extends JFrame implements ItemListener {
+public class FarmUIApplication extends JFrame implements ItemListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel cards;
@@ -33,7 +38,7 @@ public class FarmApplication extends JFrame implements ItemListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FarmApplication application = new FarmApplication();
+					FarmUIApplication application = new FarmUIApplication();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -44,7 +49,8 @@ public class FarmApplication extends JFrame implements ItemListener {
 	/**
 	 * Create the application.
 	 */
-	public FarmApplication() {
+	public FarmUIApplication() {
+
 		initialise();
 	}
 
@@ -57,10 +63,20 @@ public class FarmApplication extends JFrame implements ItemListener {
 	 * Initialise the contents of the frame.
 	 */
 	private void initialise() {
+		Farmer farmer = new Farmer();
+		Farm farm = new Farm(farmer);
+		Game game = new Game(farm);
 		this.setTitle("Swing Valley Farm");
+		farm.setAccount(50);
+		farm.setType(FarmType.FLAT);
+		farm.setName("Peter Valley Farm");
+		game.setDaysToPlay(5);
+		game.setMaxDailyActions(2);
+		farm.addPaddock(new Paddock());
+		farm.addPaddock(new Paddock());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// add all the containers
-		this.addComponentToPane(this.getContentPane());
+		this.addComponentToPane(this.getContentPane(), game);
 
 		// Display the window.
 		this.pack();
@@ -68,7 +84,7 @@ public class FarmApplication extends JFrame implements ItemListener {
 
 	}
 
-	public void addComponentToPane(Container pane) {
+	public void addComponentToPane(Container pane, Game game) {
 		// Put the Menu JComboBox in a JPanel to look nice.
 		JPanel comboBoxPane = new JPanel(); // use default FlowLayout
 		String comboBoxItems[] = { SETUP_PANEL, TEXT_PANEL, FARM_PANEL, STORE_PANEL };
@@ -78,10 +94,10 @@ public class FarmApplication extends JFrame implements ItemListener {
 		comboBoxPane.add(cb);
 
 		// create the game view cards
-		JPanel card1 = new SetupPanel(this);
+		JPanel card1 = new SetupPanel(this, game);
 		JPanel card2 = new InstructionPanel();
-		JPanel card3 = new FarmPanel();
-		JPanel card4 = new StorePanel();
+		JPanel card3 = new FarmPanel(game);
+		JPanel card4 = new StorePanel(game);
 
 		// Create the panel with card layout and add the "cards" to it.
 		cards = new JPanel(new CardLayout());
