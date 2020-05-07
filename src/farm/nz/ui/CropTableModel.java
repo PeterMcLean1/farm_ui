@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import farm.nz.model.Crop;
 
 public class CropTableModel extends AbstractTableModel {
-	private String[] columnNames = { "Crop", "Price", "Sell Price", "Days to harvest", "Buy" };
+	private static String[] COLUMN_NAMES = { "Crop", "Price", "Sell Price", "Days to harvest", "Buy" };
 
 	private List<Crop> crops;
 
@@ -22,12 +22,12 @@ public class CropTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class CropTableModel extends AbstractTableModel {
 		case 0:
 			return String.class;
 		default:
-			return int.class;
+			return Integer.class;
 		}
 	}
 
@@ -49,7 +49,7 @@ public class CropTableModel extends AbstractTableModel {
 	public boolean isCellEditable(int row, int column) {
 		switch (column) {
 		default:
-			return false;
+			return true;
 		}
 	}
 
@@ -66,6 +66,8 @@ public class CropTableModel extends AbstractTableModel {
 			return crop.getSalePrice();
 		case 3:
 			return crop.getMaturity();
+		case 4:
+			return "Buy";
 		default:
 			return null;
 		}

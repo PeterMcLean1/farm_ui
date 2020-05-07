@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import farm.nz.model.Animal;
 
 public class AnimalTableModel extends AbstractTableModel {
-	private String[] columnNames = { "Animal", "Price", "Base income", "Buy" };
+	private static String[] COLUMN_NAMES = { "Animal", "Price", "Base income", "Buy" };
 
 	private List<Animal> animals;
 
@@ -22,12 +22,12 @@ public class AnimalTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class AnimalTableModel extends AbstractTableModel {
 		case 0:
 			return String.class;
 		default:
-			return int.class;
+			return Integer.class;
 		}
 	}
 
@@ -49,7 +49,7 @@ public class AnimalTableModel extends AbstractTableModel {
 	public boolean isCellEditable(int row, int column) {
 		switch (column) {
 		default:
-			return false;
+			return true;
 		}
 	}
 
@@ -64,6 +64,8 @@ public class AnimalTableModel extends AbstractTableModel {
 			return animal.getPurchasePrice();
 		case 2:
 			return animal.getBaseIncome();
+		case 3:
+			return "Buy";
 		default:
 			return null;
 		}

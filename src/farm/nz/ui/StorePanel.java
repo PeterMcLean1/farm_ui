@@ -15,6 +15,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import farm.nz.model.Animal;
 import farm.nz.model.Crop;
@@ -46,6 +47,8 @@ public class StorePanel extends JPanel {
 		CropTableModel cropTable = new CropTableModel(crops);
 
 		JTable jt = new JTable(cropTable);
+		jt.getColumn("Buy").setCellRenderer(new ButtonRenderer());
+		jt.getColumn("Buy").setCellEditor(new ButtonEditor(new JCheckBox()));
 		jt.setBounds(0, 0, 800, 495);
 		JScrollPane sp = new JScrollPane(jt);
 		sp.setBounds(0, 0, 800, 495);
@@ -71,6 +74,8 @@ public class StorePanel extends JPanel {
 		ItemTableModel itemTable = new ItemTableModel(items);
 
 		JTable jt3 = new JTable(itemTable);
+		jt3.getColumn("Buy").setCellRenderer(new ButtonRenderer());
+		jt3.getColumn("Buy").setCellEditor(new ButtonEditor(new JCheckBox()));
 		jt3.setBounds(0, 0, 800, 495);
 		JScrollPane sp3 = new JScrollPane(jt3);
 		sp3.setBounds(0, 0, 800, 495);
@@ -111,6 +116,7 @@ public class StorePanel extends JPanel {
 
 		private String label;
 		private int index;
+		private TableModel model;
 
 		private boolean isPushed;
 
@@ -135,6 +141,7 @@ public class StorePanel extends JPanel {
 				button.setBackground(table.getBackground());
 			}
 			System.out.println(row);
+			model = table.getModel();
 			index = row;
 			label = (value == null) ? "" : value.toString();
 			button.setText(label);
@@ -144,11 +151,33 @@ public class StorePanel extends JPanel {
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
+				String type = "";
+				int price = 0;
+				if (model instanceof AnimalTableModel) {
+					AnimalTableModel amodel = (AnimalTableModel) model;
+					type = amodel.getAnimal(index).getType().getDisplay();
+					price = amodel.getAnimal(index).getPurchasePrice();
+					System.out.println(amodel.getAnimal(index).getType().getDisplay());
+				} else if (model instanceof CropTableModel) {
+					CropTableModel cmodel = (CropTableModel) model;
+					type = cmodel.getCrop(index).getType().getDisplay();
+					price = cmodel.getCrop(index).getPurchasePrice();
+					System.out.println(cmodel.getCrop(index).getType().getDisplay());
+				} else if (model instanceof ItemTableModel) {
+					ItemTableModel imodel = (ItemTableModel) model;
+					type = imodel.getItem(index).getType().getDisplay();
+					price = imodel.getItem(index).getPurchasePrice();
+					System.out.println(imodel.getItem(index).getType().getDisplay());
+				}
 				//
-				Animal animal = store.getAnimalList().get(index);
+				String message = "Do you want to buy " + type + " for $" + price;
+				int input = JOptionPane.showConfirmDialog(button, message, "Customized Dialog",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+				// 0=ok, 2=cancel
+				System.out.println(input);
+
 				//
-				JOptionPane.showMessageDialog(button, label + animal.getType().getDisplay() + ": Ouch!");
-				// System.out.println(label + ": Ouch!");
 			}
 			isPushed = false;
 			return new String(label);
