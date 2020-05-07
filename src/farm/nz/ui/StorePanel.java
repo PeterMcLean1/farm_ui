@@ -14,7 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import farm.nz.model.Animal;
@@ -43,19 +42,10 @@ public class StorePanel extends JPanel {
 		tabbedPane.setBounds(50, 50, 800, 500);
 
 		// TODO list of crops to cropPanel
-		String col[] = { "Crop", "Price", "Sell Price", "Time to harvest", "Buy" };
-		DefaultTableModel tableModel = new DefaultTableModel(col, 0);
-
 		List<Crop> crops = store.getCropList();
+		CropTableModel cropTable = new CropTableModel(crops);
 
-		for (Crop c : crops) {
-
-			Object[] objs = { c.getType().getDisplay(), c.getPurchasePrice(), c.getSalePrice(), c.getMaturity(), 0 };
-			tableModel.addRow(objs);
-
-		}
-
-		JTable jt = new JTable(tableModel);
+		JTable jt = new JTable(cropTable);
 		jt.setBounds(0, 0, 800, 495);
 		JScrollPane sp = new JScrollPane(jt);
 		sp.setBounds(0, 0, 800, 495);
@@ -63,18 +53,11 @@ public class StorePanel extends JPanel {
 		tabbedPane.add("Crops", cropPanel);
 
 		// TODO list of animals to animalPanel
-		String col2[] = { "Animal", "Price", "Base income", "Buy" };
-		DefaultTableModel tableModel2 = new DefaultTableModel(col2, 0);
 
 		List<Animal> animals = store.getAnimalList();
+		AnimalTableModel animalTable = new AnimalTableModel(animals);
 
-		for (Animal a : animals) {
-
-			Object[] objs = { a.getType().getDisplay(), a.getPurchasePrice(), a.getBaseIncome(), "Buy" };
-			tableModel2.addRow(objs);
-
-		}
-		JTable jt2 = new JTable(tableModel2);
+		JTable jt2 = new JTable(animalTable);
 		jt2.getColumn("Buy").setCellRenderer(new ButtonRenderer());
 		jt2.getColumn("Buy").setCellEditor(new ButtonEditor(new JCheckBox()));
 		jt2.setBounds(0, 0, 800, 495);
@@ -84,18 +67,10 @@ public class StorePanel extends JPanel {
 		tabbedPane.add("Animals", animalPanel);
 
 		// TODO list of farm supplies to itemPanel
-		String col3[] = { "Item", "Price", "Bonus", "Buy" };
-		DefaultTableModel tableModel3 = new DefaultTableModel(col3, 0);
-
 		List<Item> items = store.getItemList();
+		ItemTableModel itemTable = new ItemTableModel(items);
 
-		for (Item item : items) {
-
-			Object[] objs = { item.getType().getDisplay(), item.getPurchasePrice(), item.getBonus(), 0 };
-			tableModel3.addRow(objs);
-
-		}
-		JTable jt3 = new JTable(tableModel3);
+		JTable jt3 = new JTable(itemTable);
 		jt3.setBounds(0, 0, 800, 495);
 		JScrollPane sp3 = new JScrollPane(jt3);
 		sp3.setBounds(0, 0, 800, 495);
