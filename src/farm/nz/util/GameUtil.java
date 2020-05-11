@@ -48,7 +48,7 @@ public class GameUtil {
 
 		}
 
-		farm.setAccount(farm.getAccount() + bonus);
+		game.setAccount(game.getAccount() + bonus);
 
 		if (game.getCurrentDay() == game.getDaysToPlay()) {
 			endGame(game);
@@ -184,7 +184,7 @@ public class GameUtil {
 					}
 				}
 				winnings = winnings + 5 * numberCrops;
-				farm.setAccount(farm.getAccount() + winnings);
+				game.setAccount(game.getAccount() + winnings);
 
 				sb.append("!!! COUNTY FAIR AWARDS !!!\n\n");
 				sb.append("Your farm has won the top award at the annual county fair.\n");
@@ -214,7 +214,7 @@ public class GameUtil {
 	public static void endGame(Game game) {
 
 		Farm farm = game.getFarm();
-		int score = farm.getAccount();
+		int score = game.getAccount();
 		for (Paddock paddock : farm.getPaddocks()) {
 			if (null != paddock.getCrop()) {
 				score = score + paddock.getCrop().getResidualValue();
@@ -353,7 +353,7 @@ public class GameUtil {
 		sb2.append("| ");
 		sb2.append(sb1);
 		sb2.append("   Account: $");
-		sb2.append(farm.getAccount());
+		sb2.append(game.getAccount());
 		sb2.append(" |\n");
 		sb2.append("---------------------------------------------\n");
 		sb2.append("| Day: ");
@@ -434,7 +434,7 @@ public class GameUtil {
 	 */
 	public static void setupEnvironment(Game game) {
 		Farm farm = game.getFarm();
-		farm.setAccount(50);
+		game.setAccount(50);
 		// farm.setType(FarmType.FLAT);
 		// farm.setName("Peter Valley Farm");
 		// game.setDaysToPlay(5);
@@ -756,7 +756,7 @@ public class GameUtil {
 			case 3:
 				if (gotActions(game)) {
 					if (paddock.getCrop().isMature(game)) {
-						game.getFarm().setAccount(game.getFarm().getAccount() + paddock.getCrop().getSalePrice());
+						game.setAccount(game.getAccount() + paddock.getCrop().getSalePrice());
 						paddock.setCrop(null);
 					}
 					viewPaddock(paddock, game);

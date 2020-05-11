@@ -5,19 +5,19 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import farm.nz.model.Item;
+import farm.nz.model.Crop;
 
-public class ItemTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Item", "Price", "Bonus", "Buy" };
+public class StoreCropTableModel extends AbstractTableModel {
+	private static String[] COLUMN_NAMES = { "Crop", "Price", "Sell Price", "Days to mature", "On Farm", "" };
 
-	private List<Item> items;
+	private List<Crop> crops;
 
-	public ItemTableModel() {
-		items = new ArrayList<Item>();
+	public StoreCropTableModel() {
+		crops = new ArrayList<Crop>();
 	}
 
-	public ItemTableModel(List<Item> items) {
-		this.items = items;
+	public StoreCropTableModel(List<Crop> crops) {
+		this.crops = crops;
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class ItemTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return items.size();
+		return crops.size();
 	}
 
 	@Override
@@ -40,31 +40,39 @@ public class ItemTableModel extends AbstractTableModel {
 		switch (column) {
 		case 0:
 			return String.class;
+		case 5:
+			return String.class;
 		default:
-			return int.class;
+			return Integer.class;
 		}
 	}
 
 	@Override
 	public boolean isCellEditable(int row, int column) {
 		switch (column) {
-		default:
+		case 5:
 			return true;
+		default:
+			return false;
 		}
 	}
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		Item item = getItem(row);
+		Crop crop = getCrop(row);
 
 		switch (column) {
 		case 0:
-			return item.getType().getDisplay();
+			return crop.getType().getDisplay();
 		case 1:
-			return item.getPurchasePrice();
+			return crop.getPurchasePrice();
 		case 2:
-			return item.getBonus();
+			return crop.getSalePrice();
 		case 3:
+			return crop.getMaturity();
+		case 4:
+			return crop.getMaturity();
+		case 5:
 			return "Buy";
 		default:
 			return null;
@@ -73,25 +81,25 @@ public class ItemTableModel extends AbstractTableModel {
 
 	@Override
 	public void setValueAt(Object value, int row, int column) {
-		Item item = getItem(row);
+		Crop crop = getCrop(row);
 
 		switch (column) {
 		case 0:
-			item.setType(item.getType());
+			crop.setType(crop.getType());
 			break;
 		case 1:
-			item.setPurchasePrice(item.getPurchasePrice());
+			crop.setPurchasePrice(crop.getPurchasePrice());
 			;
 			break;
 		case 2:
-			item.setBonus(item.getBonus());
+			crop.setSalePrice(crop.getSalePrice());
 			break;
 		}
 
 		fireTableCellUpdated(row, column);
 	}
 
-	public Item getItem(int row) {
-		return items.get(row);
+	public Crop getCrop(int row) {
+		return crops.get(row);
 	}
 }

@@ -1,22 +1,27 @@
 package farm.nz.ui;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import farm.nz.model.Animal;
 
-public class AnimalTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Animal", "Price", "Base income", "Buy" };
+public class StoreAnimalTableModel extends AbstractTableModel {
+	private static String[] COLUMN_NAMES = { "Animal", "Price", "Base income", "On Farm", "" };
 
 	private List<Animal> animals;
 
-	public AnimalTableModel() {
+	public StoreAnimalTableModel() {
 		animals = new ArrayList<Animal>();
 	}
 
-	public AnimalTableModel(List<Animal> animals) {
+	public StoreAnimalTableModel(List<Animal> animals) {
 		this.animals = animals;
 	}
 
@@ -40,6 +45,8 @@ public class AnimalTableModel extends AbstractTableModel {
 		switch (column) {
 		case 0:
 			return String.class;
+		case 4:
+			return String.class;
 		default:
 			return Integer.class;
 		}
@@ -48,8 +55,10 @@ public class AnimalTableModel extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int row, int column) {
 		switch (column) {
-		default:
+		case 4:
 			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -65,6 +74,8 @@ public class AnimalTableModel extends AbstractTableModel {
 		case 2:
 			return animal.getBaseIncome();
 		case 3:
+			return animal.getBaseIncome();
+		case 4:
 			return "Buy";
 		default:
 			return null;
@@ -94,4 +105,25 @@ public class AnimalTableModel extends AbstractTableModel {
 	public Animal getAnimal(int row) {
 		return animals.get(row);
 	}
+
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+
+		public ButtonRenderer() {
+			setOpaque(true);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			if (isSelected) {
+				setForeground(table.getSelectionForeground());
+				setBackground(table.getSelectionBackground());
+			} else {
+				setForeground(table.getForeground());
+				setBackground(UIManager.getColor("Button.background"));
+			}
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+	}
+
 }

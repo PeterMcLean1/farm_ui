@@ -47,9 +47,9 @@ public class StoreUtil {
 
 		for (Animal animal : animals) {
 			if (selection == lineNumber) {
-				if (animal.getPurchasePrice() <= farm.getAccount()) {
+				if (animal.getPurchasePrice() <= game.getAccount()) {
 					animal.setHappy(animal.getHappy() + farm.getType().getAnimalBonus());
-					farm.setAccount(farm.getAccount() - animal.getPurchasePrice());
+					game.setAccount(game.getAccount() - animal.getPurchasePrice());
 					farm.addAnimal(animal);
 
 				}
@@ -125,8 +125,8 @@ public class StoreUtil {
 		for (Crop crop : crops) {
 
 			if (selection == lineNumber) {
-				if (crop.getPurchasePrice() <= farm.getAccount()) {
-					farm.setAccount(farm.getAccount() - crop.getPurchasePrice());
+				if (crop.getPurchasePrice() <= game.getAccount()) {
+					game.setAccount(game.getAccount() - crop.getPurchasePrice());
 					Paddock p = emptyPaddocks.get(0);
 					crop.setDayPlanted(game.getCurrentDay());
 					p.setCrop(crop);
@@ -176,8 +176,8 @@ public class StoreUtil {
 
 		for (Item item : items) {
 			if (selection == lineNumber) {
-				if (item.getPurchasePrice() <= farm.getAccount()) {
-					farm.setAccount(farm.getAccount() - item.getPurchasePrice());
+				if (item.getPurchasePrice() <= game.getAccount()) {
+					game.setAccount(game.getAccount() - item.getPurchasePrice());
 					farm.addItem(item);
 				}
 			}
