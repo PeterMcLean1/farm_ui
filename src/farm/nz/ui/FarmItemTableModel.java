@@ -21,6 +21,16 @@ public class FarmItemTableModel extends AbstractTableModel {
 	}
 
 	@Override
+	public Class getColumnClass(int column) {
+		switch (column) {
+		case 1:
+			return Integer.class;
+		default:
+			return String.class;
+		}
+	}
+
+	@Override
 	public int getColumnCount() {
 		return COLUMN_NAMES.length;
 	}
@@ -30,21 +40,37 @@ public class FarmItemTableModel extends AbstractTableModel {
 		return COLUMN_NAMES[column];
 	}
 
+	public Item getItem(int row) {
+		return items.get(row);
+	}
+
 	@Override
 	public int getRowCount() {
 		return items.size();
 	}
 
 	@Override
-	public Class getColumnClass(int column) {
+	public Object getValueAt(int row, int column) {
+		Item item = getItem(row);
 		switch (column) {
 		case 0:
-			return String.class;
+			return item.getType().getDisplay();
+		case 1:
+			return item.getBonus();
 		case 2:
-			return String.class;
-
+			String application = "";
+			if (item.isAnimal()) {
+				application = application + "ANIMAL ";
+			}
+			if (item.isCrop()) {
+				application = application + "CROP ";
+			}
+			if (item.isSkill()) {
+				application = application + "SKILL ";
+			}
+			return application;
 		default:
-			return int.class;
+			return null;
 		}
 	}
 
@@ -55,61 +81,5 @@ public class FarmItemTableModel extends AbstractTableModel {
 		default:
 			return false;
 		}
-	}
-
-	@Override
-	public Object getValueAt(int row, int column) {
-		Item item = getItem(row);
-
-		switch (column) {
-		case 0:
-			return item.getType().getDisplay();
-		case 1:
-			return item.getPurchasePrice();
-		case 2:
-			return item.getBonus();
-		case 3:
-			String application = "";
-			if (item.isAnimal()) {
-				application = application + "ANIMAL";
-			}
-			if (item.isCrop()) {
-				application = application + "CROP";
-			}
-			if (item.isSkill()) {
-				application = application + "SKILL";
-			}
-			return application;
-		case 4:
-			return item.getBonus();
-		case 5:
-			return "Buy";
-		default:
-			return null;
-		}
-	}
-
-	@Override
-	public void setValueAt(Object value, int row, int column) {
-		Item item = getItem(row);
-
-		switch (column) {
-		case 0:
-			item.setType(item.getType());
-			break;
-		case 1:
-			item.setPurchasePrice(item.getPurchasePrice());
-			;
-			break;
-		case 2:
-			item.setBonus(item.getBonus());
-			break;
-		}
-
-		fireTableCellUpdated(row, column);
-	}
-
-	public Item getItem(int row) {
-		return items.get(row);
 	}
 }

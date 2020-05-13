@@ -5,34 +5,26 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import farm.nz.model.Game;
 import farm.nz.model.Item;
 
 public class StoreItemTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Item", "Price", "Bonus", "Application", "On Farm", "" };
 
+	private static final String[] COLUMN_NAMES = { "Item", "Price", "Bonus", "Application", "On Farm", "" };
+	private static final String BUY = "Buy";
+	private static final String ANIMAL = "Animal ";
+	private static final String CROP = "Crop ";
+	private static final String SKILL = "Skill ";
 	private List<Item> items;
+	private Game game;
 
 	public StoreItemTableModel() {
 		items = new ArrayList<Item>();
 	}
 
-	public StoreItemTableModel(List<Item> items) {
+	public StoreItemTableModel(List<Item> items, Game game) {
 		this.items = items;
-	}
-
-	@Override
-	public int getColumnCount() {
-		return COLUMN_NAMES.length;
-	}
-
-	@Override
-	public String getColumnName(int column) {
-		return COLUMN_NAMES[column];
-	}
-
-	@Override
-	public int getRowCount() {
-		return items.size();
+		this.game = game;
 	}
 
 	@Override
@@ -50,13 +42,22 @@ public class StoreItemTableModel extends AbstractTableModel {
 	}
 
 	@Override
-	public boolean isCellEditable(int row, int column) {
-		switch (column) {
-		case 5:
-			return true;
-		default:
-			return false;
-		}
+	public int getColumnCount() {
+		return COLUMN_NAMES.length;
+	}
+
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
+	}
+
+	public Item getItem(int row) {
+		return items.get(row);
+	}
+
+	@Override
+	public int getRowCount() {
+		return items.size();
 	}
 
 	@Override
@@ -73,45 +74,37 @@ public class StoreItemTableModel extends AbstractTableModel {
 		case 3:
 			String application = "";
 			if (item.isAnimal()) {
-				application = application + "ANIMAL";
+				application = application + ANIMAL;
 			}
 			if (item.isCrop()) {
-				application = application + "CROP";
+				application = application + CROP;
 			}
 			if (item.isSkill()) {
-				application = application + "SKILL";
+				application = application + SKILL;
 			}
 			return application;
 		case 4:
-			return item.getBonus();
+			int count = 0;
+			for (Item i : game.getFarm().getItems()) {
+				if (i.getType() == item.getType()) {
+					count++;
+				}
+			}
+			return count;
 		case 5:
-			return "Buy";
+			return BUY;
 		default:
 			return null;
 		}
 	}
 
 	@Override
-	public void setValueAt(Object value, int row, int column) {
-		Item item = getItem(row);
-
+	public boolean isCellEditable(int row, int column) {
 		switch (column) {
-		case 0:
-			item.setType(item.getType());
-			break;
-		case 1:
-			item.setPurchasePrice(item.getPurchasePrice());
-			;
-			break;
-		case 2:
-			item.setBonus(item.getBonus());
-			break;
+		case 5:
+			return true;
+		default:
+			return false;
 		}
-
-		fireTableCellUpdated(row, column);
-	}
-
-	public Item getItem(int row) {
-		return items.get(row);
 	}
 }

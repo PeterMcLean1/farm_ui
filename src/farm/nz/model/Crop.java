@@ -2,7 +2,7 @@ package farm.nz.model;
 
 import farm.nz.type.CropType;
 
-public class Crop extends StoreItem {
+public class Crop extends StoreItem implements Cloneable {
 	private CropType type;
 	private int salePrice;
 	private int maturity;// days from planting to harvest
@@ -59,6 +59,10 @@ public class Crop extends StoreItem {
 
 	public void setPaddock(Paddock paddock) {
 		this.paddock = paddock;
+	}
+
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 
 }

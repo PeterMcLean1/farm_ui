@@ -25,58 +25,164 @@ import farm.nz.model.Game;
 import farm.nz.model.Item;
 import farm.nz.model.Paddock;
 import farm.nz.model.Store;
-import farm.nz.model.StoreItem;
 
 public class StorePanel extends JPanel {
-	private static final Store store = new Store();
 
-	private static final long serialVersionUID = 1L;
-	private JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-	private Game game;
+	class ButtonEditor extends DefaultCellEditor {
 
-	public StorePanel(Game game) {
-		initialise(game);
-	}
+		protected JButton button;
+		private int index;
+		private boolean isPushed;
+		private String label;
+		private TableModel model;
 
-	private void initialise(Game game) {
-		this.game = game;
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fireEditingStopped();
+				}
+			});
+		}
 
-		tabbedPane.setBounds(50, 20, 700, 400);
+		public boolean confirmPurchase(String type, int price) {
+			String message = "Buy " + type + " for $" + price + "?";
+			int input = JOptionPane.showConfirmDialog(button, message, "", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.INFORMATION_MESSAGE);// 0=ok, 2=cancel
+			return (input == 0);
+		}
 
-		List<Crop> crops = store.getCropList();
-		StoreCropTableModel cropTableModel = new StoreCropTableModel(crops);
-		JTable cropTable = new JTable(cropTableModel);
-		this.addButton(cropTable, 5);
-		JScrollPane cropScroll = new JScrollPane(cropTable);
+		public void doAnimalPurchase(Animal animal) {
+			if (animal.getPurchasePrice() <= game.getAccount()) {
+				if (confirmPurchase(animal.getType().getDisplay(), animal.getPurchasePrice())) {
+					try {
+						Farm farm = game.getFarm();
+						animal = (Animal) animal.clone();
+						animal.setHappy(animal.getHappy() + farm.getType().getAnimalBonus());
+						farm.addAnimal(animal);
+					} catch (CloneNotSupportedException e) {
+						e.printStackTrace();
+					}
+					game.setAccount(game.getAccount() - animal.getPurchasePrice());
+				}
+			} else {
+				this.showInsufficientFunds();
+			}
+			animalTable.repaint();
+		}
 
-		tabbedPane.add("Crops", cropScroll);
+		public void doCropPurchase(Crop crop) {
+			Farm farm = game.getFarm();
+			boolean hasSpace = false;
+			// first check if there is an empty paddock
+			for (Paddock p : farm.getPaddocks()) {
+				if (!p.hasCrop()) {
+					hasSpace = true;
+					break;
+				}
+			}
+			// if there is an empty paddock
+			if (hasSpace) {
+				// check sufficient funds to purchase
+				if (crop.getPurchasePrice() <= game.getAccount()) {
+					if (confirmPurchase(crop.getType().getDisplay(), crop.getPurchasePrice())) {
+						for (Paddock p : farm.getPaddocks()) {
+							// put crop in first empty paddock found
+							if (!p.hasCrop()) {
+								try {
+									crop = (Crop) crop.clone();
+								} catch (CloneNotSupportedException e) {
+									e.printStackTrace();
+								}
+								p.setCrop(crop);
+								break;
+							}
+						}
+						game.setAccount(game.getAccount() - crop.getPurchasePrice());
+					}
+				} else {
+					this.showInsufficientFunds();
+				}
 
-		List<Animal> animals = store.getAnimalList();
-		StoreAnimalTableModel animalTableModel = new StoreAnimalTableModel(animals);
-		JTable animalTable = new JTable(animalTableModel);
-		this.addButton(animalTable, 4);
-		JScrollPane animalScroll = new JScrollPane(animalTable);
+			} else {
+				JOptionPane.showMessageDialog(button, "Not enough paddocks!", "Insufficient space for crop",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			cropTable.repaint();
 
-		tabbedPane.add("Animals", animalScroll);
+		}
 
-		List<Item> items = store.getItemList();
-		StoreItemTableModel itemTableModel = new StoreItemTableModel(items);
-		JTable itemTable = new JTable(itemTableModel);
-		this.addButton(itemTable, 5);
-		JScrollPane itemScroll = new JScrollPane(itemTable);
+		public void doItemPurchase(Item item) {
+			if (item.getPurchasePrice() <= game.getAccount()) {
+				if (confirmPurchase(item.getType().getDisplay(), item.getPurchasePrice())) {
+					try {
+						Farm farm = game.getFarm();
+						item = (Item) item.clone();
+						farm.addItem(item);
+					} catch (CloneNotSupportedException e) {
+						e.printStackTrace();
+					}
 
-		tabbedPane.add("Farm Supplies", itemScroll);
+					game.setAccount(game.getAccount() - item.getPurchasePrice());
+				}
+			} else {
+				this.showInsufficientFunds();
+			}
+			itemTable.repaint();
+		}
 
-		this.setLayout(null);
-		this.add(tabbedPane);
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
+		}
 
-	}
+		public Object getCellEditorValue() {
+			if (isPushed) {
 
-	public void addButton(JTable table, int col) {
-		TableColumn column = table.getColumnModel().getColumn(col);
-		column.setCellEditor(new ButtonEditor(new JCheckBox()));
-		column.setCellRenderer(new ButtonRenderer());
+				if (model instanceof StoreAnimalTableModel) {
+					StoreAnimalTableModel amodel = (StoreAnimalTableModel) model;
+					Animal animal = amodel.getAnimal(index);
+					this.doAnimalPurchase(animal);
+				} else if (model instanceof StoreCropTableModel) {
+					StoreCropTableModel cmodel = (StoreCropTableModel) model;
+					Crop crop = cmodel.getCrop(index);
+					this.doCropPurchase(crop);
+				} else if (model instanceof StoreItemTableModel) {
+					StoreItemTableModel imodel = (StoreItemTableModel) model;
+					Item item = imodel.getItem(index);
+					this.doItemPurchase(item);
+				}
+			}
+			isPushed = false;
+			return new String(label);
+		}
 
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			if (isSelected) {
+				button.setForeground(table.getSelectionForeground());
+				button.setBackground(table.getSelectionBackground());
+			} else {
+				button.setForeground(table.getForeground());
+				button.setBackground(table.getBackground());
+			}
+			model = table.getModel();
+			index = row;
+			label = (value == null) ? "" : value.toString();
+			button.setText(label);
+			isPushed = true;
+			return button;
+		}
+
+		public void showInsufficientFunds() {
+			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds", JOptionPane.ERROR_MESSAGE);
+		}
+
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
+		}
 	}
 
 	class ButtonRenderer extends JButton implements TableCellRenderer {
@@ -99,144 +205,56 @@ public class StorePanel extends JPanel {
 		}
 	}
 
-	class ButtonEditor extends DefaultCellEditor {
-		protected JButton button;
+	private Game game;
+	private JTable cropTable;
+	private JTable animalTable;
+	private JTable itemTable;
 
-		private String label;
-		private int index;
-		private TableModel model;
+	public StorePanel(Game game) {
+		initialise(game);
+	}
 
-		private boolean isPushed;
+	public void addButton(JTable table, int col) {
+		TableColumn column = table.getColumnModel().getColumn(col);
+		column.setCellEditor(new ButtonEditor(new JCheckBox()));
+		column.setCellRenderer(new ButtonRenderer());
 
-		public ButtonEditor(JCheckBox checkBox) {
-			super(checkBox);
-			button = new JButton();
-			button.setOpaque(true);
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					fireEditingStopped();
-				}
-			});
-		}
+	}
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
-			}
-			System.out.println(row);
-			model = table.getModel();
-			index = row;
-			label = (value == null) ? "" : value.toString();
-			button.setText(label);
-			isPushed = true;
-			return button;
-		}
+	private void initialise(Game game) {
+		this.game = game;
+		Store store = new Store();
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
-		public Object getCellEditorValue() {
-			if (isPushed) {
-				StoreItem storeItem = null;
+		tabbedPane.setBounds(50, 20, 700, 400);
 
-				if (model instanceof StoreAnimalTableModel) {
-					StoreAnimalTableModel amodel = (StoreAnimalTableModel) model;
-					storeItem = amodel.getAnimal(index);
-				} else if (model instanceof StoreCropTableModel) {
-					StoreCropTableModel cmodel = (StoreCropTableModel) model;
-					storeItem = cmodel.getCrop(index);
-				} else if (model instanceof StoreItemTableModel) {
-					StoreItemTableModel imodel = (StoreItemTableModel) model;
-					storeItem = imodel.getItem(index);
-				}
-				this.purchase(storeItem);
-			}
-			isPushed = false;
-			return new String(label);
-		}
+		List<Crop> crops = store.getCropList();
+		StoreCropTableModel cropTableModel = new StoreCropTableModel(crops, game);
+		cropTable = new JTable(cropTableModel);
+		this.addButton(cropTable, 5);
+		JScrollPane cropScroll = new JScrollPane(cropTable);
 
-		public void purchase(StoreItem storeItem) {
-			Farm farm = game.getFarm();
+		tabbedPane.add("Crops", cropScroll);
 
-			if (storeItem instanceof Animal) {
-				Animal animal = (Animal) storeItem;
-				if (animal.getPurchasePrice() <= game.getAccount()) {
-					if (confirmPurchase(animal.getType().getDisplay(), animal.getPurchasePrice())) {
-						animal.setHappy(animal.getHappy() + farm.getType().getAnimalBonus());
-						farm.addAnimal(animal);
-						game.setAccount(game.getAccount() - animal.getPurchasePrice());
-					}
-				} else {
-					this.showInsufficientFunds();
-				}
+		List<Animal> animals = store.getAnimalList();
+		StoreAnimalTableModel animalTableModel = new StoreAnimalTableModel(animals, game);
+		animalTable = new JTable(animalTableModel);
+		this.addButton(animalTable, 4);
+		JScrollPane animalScroll = new JScrollPane(animalTable);
 
-			} else if (storeItem instanceof Item) {
-				Item item = (Item) storeItem;
-				if (item.getPurchasePrice() <= game.getAccount()) {
-					if (confirmPurchase(item.getType().getDisplay(), item.getPurchasePrice())) {
-						farm.addItem(item);
-						game.setAccount(game.getAccount() - item.getPurchasePrice());
-					}
-				} else {
-					this.showInsufficientFunds();
-				}
-			} else if (storeItem instanceof Crop) {
-				Crop crop = (Crop) storeItem;
-				boolean hasSpace = false;
-				// check if there is an empty paddock
-				for (Paddock p : farm.getPaddocks()) {
-					if (!p.hasCrop()) {
-						hasSpace = true;
-						break;
-					}
-				}
-				// if empty paddock
-				if (hasSpace) {
-					if (crop.getPurchasePrice() <= game.getAccount()) {
-						if (confirmPurchase(crop.getType().getDisplay(), crop.getPurchasePrice())) {
-							for (Paddock p : farm.getPaddocks()) {
-								// put crop in first empty paddock
-								if (!p.hasCrop()) {
-									p.setCrop(crop);
-									break;
-								}
-							}
-							game.setAccount(game.getAccount() - crop.getPurchasePrice());
-						}
-					} else {
-						this.showInsufficientFunds();
-					}
+		tabbedPane.add("Animals", animalScroll);
 
-				} else {
-					JOptionPane.showMessageDialog(button, "Not enough paddocks!", "Insufficient space for crop",
-							JOptionPane.ERROR_MESSAGE);
-				}
+		List<Item> items = store.getItemList();
+		StoreItemTableModel itemTableModel = new StoreItemTableModel(items, game);
+		itemTable = new JTable(itemTableModel);
+		this.addButton(itemTable, 5);
+		JScrollPane itemScroll = new JScrollPane(itemTable);
 
-			}
+		tabbedPane.add("Farm Supplies", itemScroll);
 
-		}
+		this.setLayout(null);
+		this.add(tabbedPane);
 
-		public void showInsufficientFunds() {
-			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds", JOptionPane.ERROR_MESSAGE);
-		}
-
-		public boolean confirmPurchase(String type, int price) {
-			String message = "Buy " + type + " for $" + price + "?";
-			int input = JOptionPane.showConfirmDialog(button, message, "", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE);// 0=ok, 2=cancel
-			return (input == 0);
-		}
-
-		public boolean stopCellEditing() {
-			isPushed = false;
-			return super.stopCellEditing();
-		}
-
-		protected void fireEditingStopped() {
-			super.fireEditingStopped();
-		}
 	}
 
 }

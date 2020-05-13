@@ -8,15 +8,15 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -32,99 +32,110 @@ import farm.nz.model.StoreItem;
 
 public class FarmPanel extends JPanel {
 
-	private static final long serialVersionUID = 1L;
-	private JTextField farmerNameField;
-	private JTextField farmerAgeField;
-	private JTextField farmNameField;
+	class ButtonEditor extends DefaultCellEditor {
+		protected JButton button;
 
-	private JLabel farmNameValidationLabel = new JLabel("");
+		private int indexCol;
+		private int indexRow;
+		private boolean isPushed;
+		private String label;
 
-	private JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-	private Game game;
-	private JTable animalTable;
-	private JTable paddockTable;
-	private JTable itemTable;
+		private TableModel model;
 
-	/**
-	 * Create the panel.
-	 */
-	public FarmPanel(Game game) {
-		initialise(game);
-		this.game = game;
-	}
-
-	private void initialise(Game game) {
-		Farm farm = game.getFarm();
-		farm.addPropertyChangeListener(Farm.PADDOCK, new FarmModelListener(this));
-		farm.addPropertyChangeListener(Farm.ANIMAL, new FarmModelListener(this));
-		farm.addPropertyChangeListener(Farm.ITEM, new FarmModelListener(this));
-		tabbedPane.setBounds(50, 20, 700, 400);
-
-		// TODO add content to paddockPanel
-		// a list of paddocks with column including crop and column for actions
-		// (harvest) if ready, otherwise days to ready.
-
-		List<Paddock> paddocks = farm.getPaddocks();
-		FarmPaddockTableModel paddockTableModel = new FarmPaddockTableModel(paddocks);
-		paddockTable = new JTable(paddockTableModel);
-		this.addButton(paddockTable, 4);
-		this.addButton(paddockTable, 5);
-		this.addButton(paddockTable, 6);
-		JScrollPane paddockScroll = new JScrollPane(paddockTable);
-
-		tabbedPane.add("Paddocks", paddockScroll);
-
-		// TODO add content to animalPanel
-		// a list of animals with actions (play with, use item). Item pop up modal
-		// window to select item (or cancel)
-
-		List<Animal> animals = farm.getAnimals();
-		FarmAnimalTableModel animalTableModel = new FarmAnimalTableModel(animals);
-		animalTable = new JTable(animalTableModel);
-		this.addButton(animalTable, 4);
-		this.addButton(animalTable, 5);
-		JScrollPane animalScroll = new JScrollPane(animalTable);
-		tabbedPane.add("Animals", animalScroll);
-
-		// TODO add content to itemPanel
-		// a list of items but no actions
-		List<Item> items = farm.getItems();
-		FarmItemTableModel itemTableModel = new FarmItemTableModel(items);
-		itemTable = new JTable(itemTableModel);
-		JScrollPane itemScroll = new JScrollPane(itemTable);
-		tabbedPane.add("Items", itemScroll);
-
-		this.setLayout(null);
-		this.add(tabbedPane);
-
-	}
-
-	public void addButton(JTable table, int col) {
-		TableColumn column = table.getColumnModel().getColumn(col);
-		column.setCellEditor(new ButtonEditor(new JCheckBox()));
-		column.setCellRenderer(new ButtonRenderer());
-
-	}
-
-	public void refreshPanel() {
-		itemTable.revalidate();
-		paddockTable.revalidate();
-
-		animalTable.revalidate();
-
-	}
-
-	class FarmModelListener implements PropertyChangeListener {
-		private FarmPanel app;
-
-		public FarmModelListener(FarmPanel app) {
-			super();
-			this.app = app;
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fireEditingStopped();
+				}
+			});
 		}
 
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			app.refreshPanel();
+		public void doAnimalAction(Animal animal) {
+			if (!game.hasActions()) {
+				this.showInsufficientActions();
+			} else {
+				if (indexCol == 4) {
+					animal.setHappy(animal.getHappy() + 2);
+//				} else if (indexCol == 5) {
+//					System.out.println("use item on animal");
+				}
+				animalTable.repaint();
+			}
+		}
+
+		public void doCropAction(Crop crop) {
+
+			if (!game.hasActions()) {
+				this.showInsufficientActions();
+			} else {
+				if (indexCol == 4) {
+					if (crop.getMaturity() != 0) {
+						crop.setMaturity(crop.getMaturity() - 1);
+						game.incrementActionCount();
+					}
+//				} else if (indexCol == 5) {
+//					System.out.println("use item on crop");
+				} else if (indexCol == 6) {
+					if (crop.isMature(game)) {
+						game.setAccount(game.getAccount() + crop.getSalePrice());
+						Paddock paddock = game.getFarm().getPaddocks().get(indexRow);
+						paddock.setCrop(null);
+					}
+				}
+				paddockTable.repaint();
+			}
+		}
+
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
+		}
+
+		public Object getCellEditorValue() {
+			if (isPushed) {
+
+				if (model instanceof FarmAnimalTableModel) {
+					Animal animal = game.getFarm().getAnimals().get(indexRow);
+					this.doAnimalAction(animal);
+				} else if (model instanceof FarmPaddockTableModel) {
+					Crop crop = game.getFarm().getPaddocks().get(indexRow).getCrop();
+					this.doCropAction(crop);
+				} // else if (model instanceof FarmItemTableModel) {
+					// Item item = game.getFarm().getItems().get(indexRow);
+					// }
+			}
+			isPushed = false;
+			return new String(label);
+		}
+
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			if (isSelected) {
+				button.setForeground(table.getSelectionForeground());
+				button.setBackground(table.getSelectionBackground());
+			} else {
+				button.setForeground(table.getForeground());
+				button.setBackground(table.getBackground());
+			}
+			model = table.getModel();
+			indexRow = row;
+			indexCol = column;
+			label = (value == null) ? "" : value.toString();
+			button.setText(label);
+			isPushed = true;
+			return button;
+		}
+
+		public void showInsufficientActions() {
+			JOptionPane.showMessageDialog(button, "There are no more actions left today.\nMove to next day (menu)",
+					"No daily actions", JOptionPane.ERROR_MESSAGE);
+		}
+
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
 		}
 	}
 
@@ -148,143 +159,201 @@ public class FarmPanel extends JPanel {
 		}
 	}
 
-	class ButtonEditor extends DefaultCellEditor {
-		protected JButton button;
+	class ComboBoxEditor extends DefaultCellEditor {
+		protected JComboBox<String> comboButton;
 
+		private int rowSelected;
+		private boolean isPushed;
 		private String label;
-		private int index;
+		private String type;
 		private TableModel model;
 
-		private boolean isPushed;
-
-		public ButtonEditor(JCheckBox checkBox) {
-			super(checkBox);
-			button = new JButton();
-			button.setOpaque(true);
-			button.addActionListener(new ActionListener() {
+		public ComboBoxEditor(JComboBox<String> comboBox, String type) {
+			super(comboBox);
+			this.type = type;
+			comboButton = new JComboBox<String>();
+			comboButton.setOpaque(true);
+			comboButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					fireEditingStopped();
 				}
 			});
 		}
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
-			}
-			System.out.println(row);
-			model = table.getModel();
-			index = row;
-			label = (value == null) ? "" : value.toString();
-			button.setText(label);
-			isPushed = true;
-			return button;
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
 		}
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				StoreItem storeItem = null;
+				if (!game.hasActions()) {
+					this.showInsufficientActions();
+				} else {
 
-				if (model instanceof StoreAnimalTableModel) {
-					StoreAnimalTableModel amodel = (StoreAnimalTableModel) model;
-					storeItem = amodel.getAnimal(index);
-				} else if (model instanceof StoreCropTableModel) {
-					StoreCropTableModel cmodel = (StoreCropTableModel) model;
-					storeItem = cmodel.getCrop(index);
-				} else if (model instanceof StoreItemTableModel) {
-					StoreItemTableModel imodel = (StoreItemTableModel) model;
-					storeItem = imodel.getItem(index);
+					if (model instanceof FarmAnimalTableModel) {
+						Animal animal = game.getFarm().getAnimals().get(rowSelected);
+						this.doAction(animal, ANIMAL);
+
+					} else if (model instanceof FarmPaddockTableModel) {
+						Crop crop = game.getFarm().getPaddocks().get(rowSelected).getCrop();
+						if (null != crop) {
+							this.doAction(crop, CROP);
+						}
+
+					}
 				}
-				this.purchase(storeItem);
 			}
 			isPushed = false;
 			return new String(label);
 		}
 
-		public void purchase(StoreItem storeItem) {
-			Farm farm = game.getFarm();
+		public void doAction(StoreItem storeItem, String type) {
+			Item item = null;
+			String selected = comboButton.getSelectedItem().toString();
 
-			if (storeItem instanceof Animal) {
-				Animal animal = (Animal) storeItem;
-				if (animal.getPurchasePrice() <= game.getAccount()) {
-					if (confirmPurchase(animal.getType().getDisplay(), animal.getPurchasePrice())) {
-						animal.setHappy(animal.getHappy() + farm.getType().getAnimalBonus());
-						farm.addAnimal(animal);
-						game.setAccount(game.getAccount() - animal.getPurchasePrice());
+			for (Item i : game.getFarm().getItems()) {
+				if (selected.equalsIgnoreCase(i.getType().getDisplay())) {
+					item = i;
+					if (type.equalsIgnoreCase(CROP)) {
+						Crop crop = (Crop) storeItem;
+						crop.setMaturity(crop.getMaturity() - i.getBonus());
+						paddockTable.repaint();
+					} else if (type.equalsIgnoreCase(ANIMAL)) {
+						Animal animal = (Animal) storeItem;
+						animal.setHealth(animal.getHealth() + i.getBonus());
+						animalTable.repaint();
 					}
-				} else {
-					this.showInsufficientFunds();
+					break;
 				}
-
-			} else if (storeItem instanceof Item) {
-				Item item = (Item) storeItem;
-				if (item.getPurchasePrice() <= game.getAccount()) {
-					if (confirmPurchase(item.getType().getDisplay(), item.getPurchasePrice())) {
-						farm.addItem(item);
-						game.setAccount(game.getAccount() - item.getPurchasePrice());
-					}
-				} else {
-					this.showInsufficientFunds();
-				}
-			} else if (storeItem instanceof Crop) {
-				Crop crop = (Crop) storeItem;
-				boolean hasSpace = false;
-				// check if there is an empty paddock
-				for (Paddock p : farm.getPaddocks()) {
-					if (!p.hasCrop()) {
-						hasSpace = true;
-						break;
-					}
-				}
-				// if empty paddock
-				if (hasSpace) {
-					if (crop.getPurchasePrice() <= game.getAccount()) {
-						if (confirmPurchase(crop.getType().getDisplay(), crop.getPurchasePrice())) {
-							for (Paddock p : farm.getPaddocks()) {
-								// put crop in first empty paddock
-								if (!p.hasCrop()) {
-									p.setCrop(crop);
-									break;
-								}
-							}
-							game.setAccount(game.getAccount() - crop.getPurchasePrice());
-						}
-					} else {
-						this.showInsufficientFunds();
-					}
-
-				} else {
-					JOptionPane.showMessageDialog(button, "Not enough paddocks!", "Insufficient space for crop",
-							JOptionPane.ERROR_MESSAGE);
-				}
-
 			}
-
+			game.getFarm().getItems().remove(item);
+			game.incrementActionCount();
 		}
 
-		public void showInsufficientFunds() {
-			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds", JOptionPane.ERROR_MESSAGE);
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			if (isSelected) {
+				comboButton.setForeground(table.getSelectionForeground());
+				comboButton.setBackground(table.getSelectionBackground());
+			} else {
+				comboButton.setForeground(table.getForeground());
+				comboButton.setBackground(table.getBackground());
+			}
+			model = table.getModel();
+			rowSelected = row;
+			label = (value == null) ? "" : value.toString();
+			DefaultComboBoxModel<String> dmodel = new DefaultComboBoxModel<String>();
+			for (Item i : game.getFarm().getItems()) {
+				if (type.equalsIgnoreCase(CROP) && i.isCrop()) {
+					dmodel.addElement(i.getType().getDisplay());
+				} else if (type.equalsIgnoreCase(ANIMAL) && i.isAnimal()) {
+					dmodel.addElement(i.getType().getDisplay());
+				}
+			}
+			if (dmodel.getSize() == 0) {
+				dmodel.addElement("No items");
+			}
+			comboButton.setModel(dmodel);
+			isPushed = true;
+			return comboButton;
 		}
 
-		public boolean confirmPurchase(String type, int price) {
-			String message = "Buy " + type + " for $" + price + "?";
-			int input = JOptionPane.showConfirmDialog(button, message, "", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE);// 0=ok, 2=cancel
-			return (input == 0);
+		public void showInsufficientActions() {
+			JOptionPane.showMessageDialog(comboButton, "There are no more actions left today.\nMove to next day (menu)",
+					"No daily actions", JOptionPane.ERROR_MESSAGE);
 		}
 
 		public boolean stopCellEditing() {
 			isPushed = false;
 			return super.stopCellEditing();
 		}
+	}
 
-		protected void fireEditingStopped() {
-			super.fireEditingStopped();
+	class FarmModelListener implements PropertyChangeListener {
+		private FarmPanel app;
+
+		public FarmModelListener(FarmPanel app) {
+			super();
+			this.app = app;
 		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			app.refreshPanel();
+		}
+	}
+
+	private static final String CROP = "crop";
+	private static final String ANIMAL = "animal";
+	private static final long serialVersionUID = 1L;
+	private JTable animalTable;
+	private Game game;
+	private JTable itemTable;
+	private JTable paddockTable;
+
+	/**
+	 * Create the panel.
+	 */
+	public FarmPanel(Game game) {
+		initialise(game);
+		this.game = game;
+	}
+
+	public void addButton(JTable table, int col) {
+		TableColumn column = table.getColumnModel().getColumn(col);
+		column.setCellEditor(new ButtonEditor(new JCheckBox()));
+		column.setCellRenderer(new ButtonRenderer());
+
+	}
+
+	public void addComboBox(JTable table, int col, String type) {
+		TableColumn column = table.getColumnModel().getColumn(col);
+		column.setCellEditor(new ComboBoxEditor(new JComboBox<String>(), type));
+		column.setCellRenderer(new ButtonRenderer());
+	}
+
+	private void initialise(Game game) {
+		Farm farm = game.getFarm();
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		farm.addPropertyChangeListener(Farm.PADDOCK, new FarmModelListener(this));
+		farm.addPropertyChangeListener(Farm.ANIMAL, new FarmModelListener(this));
+		farm.addPropertyChangeListener(Farm.ITEM, new FarmModelListener(this));
+		tabbedPane.setBounds(50, 20, 700, 400);
+
+		List<Paddock> paddocks = farm.getPaddocks();
+		FarmPaddockTableModel paddockTableModel = new FarmPaddockTableModel(paddocks);
+		paddockTable = new JTable(paddockTableModel);
+		this.addButton(paddockTable, 4);
+		this.addComboBox(paddockTable, 5, CROP);
+		this.addButton(paddockTable, 6);
+		JScrollPane paddockScroll = new JScrollPane(paddockTable);
+
+		tabbedPane.add("Paddocks", paddockScroll);
+
+		List<Animal> animals = farm.getAnimals();
+		FarmAnimalTableModel animalTableModel = new FarmAnimalTableModel(animals);
+		animalTable = new JTable(animalTableModel);
+		this.addButton(animalTable, 4);
+		this.addComboBox(animalTable, 5, ANIMAL);
+		JScrollPane animalScroll = new JScrollPane(animalTable);
+		tabbedPane.add("Animals", animalScroll);
+
+		List<Item> items = farm.getItems();
+		FarmItemTableModel itemTableModel = new FarmItemTableModel(items);
+		itemTable = new JTable(itemTableModel);
+		JScrollPane itemScroll = new JScrollPane(itemTable);
+		tabbedPane.add("Items", itemScroll);
+
+		tabbedPane.add("Maintenance", new MaintenancePanel(game));
+
+		this.setLayout(null);
+		this.add(tabbedPane);
+
+	}
+
+	public void refreshPanel() {
+		itemTable.revalidate();
+		paddockTable.revalidate();
+		animalTable.revalidate();
 	}
 }

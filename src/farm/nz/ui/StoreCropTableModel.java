@@ -6,33 +6,23 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import farm.nz.model.Crop;
+import farm.nz.model.Game;
+import farm.nz.model.Paddock;
 
 public class StoreCropTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Crop", "Price", "Sell Price", "Days to mature", "On Farm", "" };
 
+	private static final String[] COLUMN_NAMES = { "Crop", "Price", "Sell Price", "Days to mature", "On Farm", "" };
+	private static final String BUY = "Buy";
 	private List<Crop> crops;
+	private Game game;
 
 	public StoreCropTableModel() {
 		crops = new ArrayList<Crop>();
 	}
 
-	public StoreCropTableModel(List<Crop> crops) {
+	public StoreCropTableModel(List<Crop> crops, Game game) {
 		this.crops = crops;
-	}
-
-	@Override
-	public int getColumnCount() {
-		return COLUMN_NAMES.length;
-	}
-
-	@Override
-	public String getColumnName(int column) {
-		return COLUMN_NAMES[column];
-	}
-
-	@Override
-	public int getRowCount() {
-		return crops.size();
+		this.game = game;
 	}
 
 	@Override
@@ -48,13 +38,22 @@ public class StoreCropTableModel extends AbstractTableModel {
 	}
 
 	@Override
-	public boolean isCellEditable(int row, int column) {
-		switch (column) {
-		case 5:
-			return true;
-		default:
-			return false;
-		}
+	public int getColumnCount() {
+		return COLUMN_NAMES.length;
+	}
+
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
+	}
+
+	public Crop getCrop(int row) {
+		return crops.get(row);
+	}
+
+	@Override
+	public int getRowCount() {
+		return crops.size();
 	}
 
 	@Override
@@ -71,35 +70,30 @@ public class StoreCropTableModel extends AbstractTableModel {
 		case 3:
 			return crop.getMaturity();
 		case 4:
-			return crop.getMaturity();
+
+			int count = 0;
+			for (Paddock p : game.getFarm().getPaddocks()) {
+				if (p.hasCrop() && p.getCrop().getType() == crop.getType()) {
+					count++;
+				}
+			}
+
+			return count;
+
 		case 5:
-			return "Buy";
+			return BUY;
 		default:
 			return null;
 		}
 	}
 
 	@Override
-	public void setValueAt(Object value, int row, int column) {
-		Crop crop = getCrop(row);
-
+	public boolean isCellEditable(int row, int column) {
 		switch (column) {
-		case 0:
-			crop.setType(crop.getType());
-			break;
-		case 1:
-			crop.setPurchasePrice(crop.getPurchasePrice());
-			;
-			break;
-		case 2:
-			crop.setSalePrice(crop.getSalePrice());
-			break;
+		case 5:
+			return true;
+		default:
+			return false;
 		}
-
-		fireTableCellUpdated(row, column);
-	}
-
-	public Crop getCrop(int row) {
-		return crops.get(row);
 	}
 }
