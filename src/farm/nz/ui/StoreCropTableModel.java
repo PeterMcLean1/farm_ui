@@ -11,7 +11,8 @@ import farm.nz.model.Paddock;
 
 public class StoreCropTableModel extends AbstractTableModel {
 
-	private static final String[] COLUMN_NAMES = { "Crop", "Price", "Sell Price", "Days to mature", "On Farm", "" };
+	private static final String[] COLUMN_NAMES = { "Crop", "Buy Price", "Sell Price  (?)", "Days to mature", "On Farm",
+			"" };
 	private static final String BUY = "Buy";
 	private List<Crop> crops;
 	private Game game;

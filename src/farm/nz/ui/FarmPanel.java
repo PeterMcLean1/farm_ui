@@ -3,6 +3,7 @@ package farm.nz.ui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -59,8 +61,8 @@ public class FarmPanel extends JPanel {
 			} else {
 				if (indexCol == 4) {
 					animal.setHappy(animal.getHappy() + 2);
-//				} else if (indexCol == 5) {
-//					System.out.println("use item on animal");
+					game.incrementActionCount();
+
 				}
 				animalTable.repaint();
 			}
@@ -72,17 +74,16 @@ public class FarmPanel extends JPanel {
 				this.showInsufficientActions();
 			} else {
 				if (indexCol == 4) {
-					if (crop.getMaturity() != 0) {
+					if (null != crop && crop.getMaturity() != 0) {
 						crop.setMaturity(crop.getMaturity() - 1);
 						game.incrementActionCount();
 					}
-//				} else if (indexCol == 5) {
-//					System.out.println("use item on crop");
 				} else if (indexCol == 6) {
-					if (crop.isMature(game)) {
+					if (null != crop && crop.isMature(game)) {
 						game.setAccount(game.getAccount() + crop.getSalePrice());
 						Paddock paddock = game.getFarm().getPaddocks().get(indexRow);
 						paddock.setCrop(null);
+						game.incrementActionCount();
 					}
 				}
 				paddockTable.repaint();
@@ -270,16 +271,27 @@ public class FarmPanel extends JPanel {
 	}
 
 	class FarmModelListener implements PropertyChangeListener {
-		private FarmPanel app;
+		private JPanel app;
 
-		public FarmModelListener(FarmPanel app) {
+		public FarmModelListener(JPanel app) {
 			super();
 			this.app = app;
 		}
 
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			app.refreshPanel();
+			switch (evt.getPropertyName()) {
+			case Farm.ANIMAL:
+				animalTable.revalidate();
+			case Farm.PADDOCK:
+				paddockTable.revalidate();
+			case Farm.ITEM:
+				itemTable.revalidate();
+			case Game.DAY:
+
+				paddockTable.repaint();
+				animalTable.repaint();
+			}
 		}
 	}
 
@@ -290,6 +302,8 @@ public class FarmPanel extends JPanel {
 	private Game game;
 	private JTable itemTable;
 	private JTable paddockTable;
+	protected String[] itemColumnToolTips = { null, "Crop bonus reduces days to harvest, Animal bonus adds to health",
+			"What you can use the item on" };
 
 	/**
 	 * Create the panel.
@@ -318,10 +332,11 @@ public class FarmPanel extends JPanel {
 		farm.addPropertyChangeListener(Farm.PADDOCK, new FarmModelListener(this));
 		farm.addPropertyChangeListener(Farm.ANIMAL, new FarmModelListener(this));
 		farm.addPropertyChangeListener(Farm.ITEM, new FarmModelListener(this));
+		game.addPropertyChangeListener(Game.DAY, new FarmModelListener(this));
 		tabbedPane.setBounds(50, 20, 700, 400);
 
 		List<Paddock> paddocks = farm.getPaddocks();
-		FarmPaddockTableModel paddockTableModel = new FarmPaddockTableModel(paddocks);
+		FarmPaddockTableModel paddockTableModel = new FarmPaddockTableModel(game);
 		paddockTable = new JTable(paddockTableModel);
 		this.addButton(paddockTable, 4);
 		this.addComboBox(paddockTable, 5, CROP);
@@ -340,7 +355,19 @@ public class FarmPanel extends JPanel {
 
 		List<Item> items = farm.getItems();
 		FarmItemTableModel itemTableModel = new FarmItemTableModel(items);
-		itemTable = new JTable(itemTableModel);
+		itemTable = new JTable(itemTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return itemColumnToolTips[realIndex];
+					}
+				};
+			}
+		};
 		JScrollPane itemScroll = new JScrollPane(itemTable);
 		tabbedPane.add("Items", itemScroll);
 
@@ -351,9 +378,4 @@ public class FarmPanel extends JPanel {
 
 	}
 
-	public void refreshPanel() {
-		itemTable.revalidate();
-		paddockTable.revalidate();
-		animalTable.revalidate();
-	}
 }

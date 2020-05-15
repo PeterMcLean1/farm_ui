@@ -10,7 +10,7 @@ import farm.nz.model.Game;
 
 public class StoreAnimalTableModel extends AbstractTableModel {
 
-	private static final String[] COLUMN_NAMES = { "Animal", "Price", "Base income", "On Farm", "" };
+	private static final String[] COLUMN_NAMES = { "Animal", "Price", "Base income  (?)", "On Farm (?)", "" };
 	private static final String BUY = "Buy";
 	private List<Animal> animals;
 	private Game game;

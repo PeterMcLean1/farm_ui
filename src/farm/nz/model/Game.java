@@ -63,23 +63,22 @@ public class Game {
 	}
 
 	public void incrementCurrentDay() {
-		int oldValue = this.currentDay;
 
 		this.currentDay++;
-		int newValue = this.currentDay;
-		support.firePropertyChange(DAY, oldValue, newValue);
+
+		support.firePropertyChange(DAY, 1, 2);
 	}
 
 	public void incrementActionCount() {
-		int oldValue = this.actionCount;
-		this.actionCount++;
-		int newValue = this.actionCount;
 
-		support.firePropertyChange(ACTION, oldValue, newValue);
+		this.actionCount++;
+
+		support.firePropertyChange(ACTION, 1, 2);
 	}
 
 	public void setActionCount(int actionCount) {
 		this.actionCount = actionCount;
+		support.firePropertyChange(ACTION, 1, 2);
 	}
 
 	public void setCurrentDay(int currentDay) {
@@ -88,6 +87,7 @@ public class Game {
 
 	public void setDaysToPlay(int daysToPlay) {
 		this.daysToPlay = daysToPlay;
+
 	}
 
 	public void setFarm(Farm farm) {

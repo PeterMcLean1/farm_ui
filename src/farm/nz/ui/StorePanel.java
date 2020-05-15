@@ -3,6 +3,7 @@ package farm.nz.ui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
@@ -14,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -93,6 +95,7 @@ public class StorePanel extends JPanel {
 							if (!p.hasCrop()) {
 								try {
 									crop = (Crop) crop.clone();
+									crop.setDayPlanted(game.getCurrentDay());
 								} catch (CloneNotSupportedException e) {
 									e.printStackTrace();
 								}
@@ -209,6 +212,13 @@ public class StorePanel extends JPanel {
 	private JTable cropTable;
 	private JTable animalTable;
 	private JTable itemTable;
+	protected String[] animalColumnToolTips = { null, null,
+			"Base amount of money provided by the animal at the end of the day",
+			"How many of this animal you have on your farm" };
+	protected String[] itemColumnToolTips = { null, null,
+			"Crop bonus reduces days to harvest, Animal bonus adds to health", "What you can use the item on", null };
+	protected String[] cropColumnToolTips = { null, null, "How much you can sell the crop for when harvested", null,
+			null };
 
 	public StorePanel(Game game) {
 		initialise(game);
@@ -230,7 +240,19 @@ public class StorePanel extends JPanel {
 
 		List<Crop> crops = store.getCropList();
 		StoreCropTableModel cropTableModel = new StoreCropTableModel(crops, game);
-		cropTable = new JTable(cropTableModel);
+		cropTable = new JTable(cropTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return cropColumnToolTips[realIndex];
+					}
+				};
+			}
+		};
 		this.addButton(cropTable, 5);
 		JScrollPane cropScroll = new JScrollPane(cropTable);
 
@@ -238,7 +260,20 @@ public class StorePanel extends JPanel {
 
 		List<Animal> animals = store.getAnimalList();
 		StoreAnimalTableModel animalTableModel = new StoreAnimalTableModel(animals, game);
-		animalTable = new JTable(animalTableModel);
+		animalTable = new JTable(animalTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return animalColumnToolTips[realIndex];
+					}
+				};
+			}
+		};
+
 		this.addButton(animalTable, 4);
 		JScrollPane animalScroll = new JScrollPane(animalTable);
 
@@ -246,7 +281,19 @@ public class StorePanel extends JPanel {
 
 		List<Item> items = store.getItemList();
 		StoreItemTableModel itemTableModel = new StoreItemTableModel(items, game);
-		itemTable = new JTable(itemTableModel);
+		itemTable = new JTable(itemTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return itemColumnToolTips[realIndex];
+					}
+				};
+			}
+		};
 		this.addButton(itemTable, 5);
 		JScrollPane itemScroll = new JScrollPane(itemTable);
 

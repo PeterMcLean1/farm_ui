@@ -10,7 +10,7 @@ import farm.nz.model.Item;
 
 public class StoreItemTableModel extends AbstractTableModel {
 
-	private static final String[] COLUMN_NAMES = { "Item", "Price", "Bonus", "Application", "On Farm", "" };
+	private static final String[] COLUMN_NAMES = { "Item", "Price", "Bonus  (?)", "Use on  (?)", "On Farm", "" };
 	private static final String BUY = "Buy";
 	private static final String ANIMAL = "Animal ";
 	private static final String CROP = "Crop ";

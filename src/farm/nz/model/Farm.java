@@ -9,6 +9,7 @@ import javax.swing.event.SwingPropertyChangeSupport;
 import farm.nz.type.FarmType;
 
 public class Farm {
+	public static final String CROP = "crop";
 	public static final String PADDOCK = "paddock";
 	public static final String ANIMAL = "animal";
 	public static final String ITEM = "item";
@@ -36,10 +37,8 @@ public class Farm {
 
 	public void addAnimal(Animal animal) {
 
-		int oldValue = this.animals.size();
 		this.animals.add(animal);
-		int newValue = this.animals.size();
-		support.firePropertyChange(ANIMAL, oldValue, newValue);
+		support.firePropertyChange(ANIMAL, 1, 2);
 	}
 
 	public List<Item> getItems() {
@@ -58,11 +57,9 @@ public class Farm {
 
 	public void addItem(Item item) {
 
-		int oldValue = this.items.size();
 		this.items.add(item);
-		int newValue = this.items.size();
 
-		support.firePropertyChange(ITEM, oldValue, newValue);
+		support.firePropertyChange(ITEM, 1, 2);
 	}
 
 	public void setItems(List<Item> items) {
@@ -89,10 +86,8 @@ public class Farm {
 
 	public void addPaddock(Paddock paddock) {
 
-		int oldValue = this.paddocks.size();
 		this.paddocks.add(paddock);
-		int newValue = this.paddocks.size();
-		support.firePropertyChange(PADDOCK, oldValue, newValue);
+		support.firePropertyChange(PADDOCK, 1, 2);
 	}
 
 	public void removePaddock(Paddock paddock) {

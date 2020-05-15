@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import farm.nz.model.Item;
 
 public class FarmItemTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Item", "Bonus", "Application" };
+	private static String[] COLUMN_NAMES = { "Item", "Bonus  (?)", "Use on  (?)" };
 
 	private List<Item> items;
 

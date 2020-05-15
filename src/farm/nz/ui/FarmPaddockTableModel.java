@@ -6,23 +6,26 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import farm.nz.model.Crop;
+import farm.nz.model.Game;
 import farm.nz.model.Paddock;
 
 public class FarmPaddockTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Paddock ID", "Crop", "Days to mature", "Sell Price", "Water (free)", "",
-			"" }; // water,
+	private static String[] COLUMN_NAMES = { "Paddock ID", "Crop", "Days until mature", "Sell Price", "Water (free)",
+			"", "" }; // water,
 	// use
 	// item,
 	// harvest
 
 	private List<Paddock> paddocks;
+	private Game game;
 
 	public FarmPaddockTableModel() {
 		paddocks = new ArrayList<Paddock>();
 	}
 
-	public FarmPaddockTableModel(List<Paddock> paddocks) {
-		this.paddocks = paddocks;
+	public FarmPaddockTableModel(Game game) {
+		this.paddocks = game.getFarm().getPaddocks();
+		this.game = game;
 	}
 
 	@Override
@@ -70,7 +73,7 @@ public class FarmPaddockTableModel extends AbstractTableModel {
 				return "-";
 			} else if (crop.getMaturity() > 0) {
 
-				return crop.getMaturity();
+				return crop.getDayPlanted() + crop.getMaturity() - game.getCurrentDay();
 			} else {
 				return 0;
 			}
