@@ -1,8 +1,8 @@
 package farm.nz.model;
 
 public class Farmer {
-	private String name;
-	private int age;
+	private String name = "";
+	private int age = 0;
 
 	public Farmer() {
 	}

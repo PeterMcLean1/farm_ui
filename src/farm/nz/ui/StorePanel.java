@@ -1,110 +1,193 @@
 package farm.nz.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import farm.nz.model.Animal;
 import farm.nz.model.Crop;
+import farm.nz.model.Farm;
 import farm.nz.model.Game;
 import farm.nz.model.Item;
+import farm.nz.model.Paddock;
 import farm.nz.model.Store;
 
 public class StorePanel extends JPanel {
-	private static final Store store = new Store();
 
-	private static final long serialVersionUID = 1L;
+	class ButtonEditor extends DefaultCellEditor {
 
-	/**
-	 * Create the panel.
-	 */
-	public StorePanel(Game game) {
-		initialise(game);
-	}
+		protected JButton button;
+		private int index;
+		private boolean isPushed;
+		private String label;
+		private TableModel model;
 
-	private void initialise(Game game) {
-		JPanel cropPanel = new JPanel();
-		JPanel animalPanel = new JPanel();
-		JPanel itemPanel = new JPanel();
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(50, 50, 800, 500);
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fireEditingStopped();
+				}
+			});
+		}
 
-		// TODO list of crops to cropPanel
-		String col[] = { "Crop", "Price", "Sell Price", "Time to harvest", "Buy" };
-		DefaultTableModel tableModel = new DefaultTableModel(col, 0);
+		public boolean confirmPurchase(String type, int price) {
+			String message = "Buy " + type + " for $" + price + "?";
+			int input = JOptionPane.showConfirmDialog(button, message, "", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.INFORMATION_MESSAGE);// 0=ok, 2=cancel
+			return (input == 0);
+		}
 
-		List<Crop> crops = store.getCropList();
+		public void doAnimalPurchase(Animal animal) {
+			if (animal.getPurchasePrice() <= game.getAccount()) {
+				if (confirmPurchase(animal.getType().getDisplay(), animal.getPurchasePrice())) {
+					try {
+						Farm farm = game.getFarm();
+						animal = (Animal) animal.clone();
+						animal.setHappy(animal.getHappy() + farm.getType().getAnimalBonus());
+						farm.addAnimal(animal);
+					} catch (CloneNotSupportedException e) {
+						e.printStackTrace();
+					}
+					game.setAccount(game.getAccount() - animal.getPurchasePrice());
+				}
+			} else {
+				this.showInsufficientFunds();
+			}
+			animalTable.repaint();
+		}
 
-		for (Crop c : crops) {
+		public void doCropPurchase(Crop crop) {
+			Farm farm = game.getFarm();
+			boolean hasSpace = false;
+			// first check if there is an empty paddock
+			for (Paddock p : farm.getPaddocks()) {
+				if (!p.hasCrop()) {
+					hasSpace = true;
+					break;
+				}
+			}
+			// if there is an empty paddock
+			if (hasSpace) {
+				// check sufficient funds to purchase
+				if (crop.getPurchasePrice() <= game.getAccount()) {
+					if (confirmPurchase(crop.getType().getDisplay(), crop.getPurchasePrice())) {
+						for (Paddock p : farm.getPaddocks()) {
+							// put crop in first empty paddock found
+							if (!p.hasCrop()) {
+								try {
+									crop = (Crop) crop.clone();
+									crop.setDayPlanted(game.getCurrentDay());
+								} catch (CloneNotSupportedException e) {
+									e.printStackTrace();
+								}
+								p.setCrop(crop);
+								break;
+							}
+						}
+						game.setAccount(game.getAccount() - crop.getPurchasePrice());
+					}
+				} else {
+					this.showInsufficientFunds();
+				}
 
-			Object[] objs = { c.getType().getDisplay(), c.getPurchasePrice(), c.getSalePrice(), c.getMaturity(), 0 };
-			tableModel.addRow(objs);
+			} else {
+				JOptionPane.showMessageDialog(button, "Not enough paddocks!", "Insufficient space for crop",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			cropTable.repaint();
 
 		}
 
-		JTable jt = new JTable(tableModel);
-		jt.setBounds(0, 0, 800, 495);
-		JScrollPane sp = new JScrollPane(jt);
-		sp.setBounds(0, 0, 800, 495);
-		cropPanel.add(sp);
-		tabbedPane.add("Crops", cropPanel);
+		public void doItemPurchase(Item item) {
+			if (item.getPurchasePrice() <= game.getAccount()) {
+				if (confirmPurchase(item.getType().getDisplay(), item.getPurchasePrice())) {
+					try {
+						Farm farm = game.getFarm();
+						item = (Item) item.clone();
+						farm.addItem(item);
+					} catch (CloneNotSupportedException e) {
+						e.printStackTrace();
+					}
 
-		// TODO list of animals to animalPanel
-		String col2[] = { "Animal", "Price", "Base income", "Buy" };
-		DefaultTableModel tableModel2 = new DefaultTableModel(col2, 0);
-
-		List<Animal> animals = store.getAnimalList();
-
-		for (Animal a : animals) {
-
-			Object[] objs = { a.getType().getDisplay(), a.getPurchasePrice(), a.getBaseIncome(), "Buy" };
-			tableModel2.addRow(objs);
-
+					game.setAccount(game.getAccount() - item.getPurchasePrice());
+				}
+			} else {
+				this.showInsufficientFunds();
+			}
+			itemTable.repaint();
 		}
-		JTable jt2 = new JTable(tableModel2);
-		jt2.getColumn("Buy").setCellRenderer(new ButtonRenderer());
-		jt2.getColumn("Buy").setCellEditor(new ButtonEditor(new JCheckBox()));
-		jt2.setBounds(0, 0, 800, 495);
-		JScrollPane sp2 = new JScrollPane(jt2);
-		sp2.setBounds(0, 0, 800, 495);
-		animalPanel.add(sp2);
-		tabbedPane.add("Animals", animalPanel);
 
-		// TODO list of farm supplies to itemPanel
-		String col3[] = { "Item", "Price", "Bonus", "Buy" };
-		DefaultTableModel tableModel3 = new DefaultTableModel(col3, 0);
-
-		List<Item> items = store.getItemList();
-
-		for (Item item : items) {
-
-			Object[] objs = { item.getType().getDisplay(), item.getPurchasePrice(), item.getBonus(), 0 };
-			tableModel3.addRow(objs);
-
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
 		}
-		JTable jt3 = new JTable(tableModel3);
-		jt3.setBounds(0, 0, 800, 495);
-		JScrollPane sp3 = new JScrollPane(jt3);
-		sp3.setBounds(0, 0, 800, 495);
-		itemPanel.add(sp3);
-		tabbedPane.add("Farm Supplies", itemPanel);
 
-		this.setLayout(null);
-		this.add(tabbedPane);
+		public Object getCellEditorValue() {
+			if (isPushed) {
 
+				if (model instanceof StoreAnimalTableModel) {
+					StoreAnimalTableModel amodel = (StoreAnimalTableModel) model;
+					Animal animal = amodel.getAnimal(index);
+					this.doAnimalPurchase(animal);
+				} else if (model instanceof StoreCropTableModel) {
+					StoreCropTableModel cmodel = (StoreCropTableModel) model;
+					Crop crop = cmodel.getCrop(index);
+					this.doCropPurchase(crop);
+				} else if (model instanceof StoreItemTableModel) {
+					StoreItemTableModel imodel = (StoreItemTableModel) model;
+					Item item = imodel.getItem(index);
+					this.doItemPurchase(item);
+				}
+			}
+			isPushed = false;
+			return new String(label);
+		}
+
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			if (isSelected) {
+				button.setForeground(table.getSelectionForeground());
+				button.setBackground(table.getSelectionBackground());
+			} else {
+				button.setForeground(table.getForeground());
+				button.setBackground(table.getBackground());
+			}
+			model = table.getModel();
+			index = row;
+			label = (value == null) ? "" : value.toString();
+			button.setText(label);
+			isPushed = true;
+			return button;
+		}
+
+		public void showInsufficientFunds() {
+			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds", JOptionPane.ERROR_MESSAGE);
+		}
+
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
+		}
 	}
 
 	class ButtonRenderer extends JButton implements TableCellRenderer {
@@ -127,66 +210,109 @@ public class StorePanel extends JPanel {
 		}
 	}
 
-	/**
-	 * @version 1.0 11/09/98
-	 */
+	private Game game;
+	private JTable cropTable;
+	private JTable animalTable;
+	private JTable itemTable;
+	protected String[] animalColumnToolTips = { null, null, "The base amount of income provided at the end of each day",
+			"The number of animals currently on your farm" };
+	protected String[] itemColumnToolTips = { null, null,
+			"Crop bonus reduces days to harvest, Animal bonus adds to health", null,
+			"The number of farm supplies currently on your farm", null };
+	protected String[] cropColumnToolTips = { null, null, "The price you can sell the crop for when harvested", null,
+			"The number of crops currently planted on your farm" };
 
-	class ButtonEditor extends DefaultCellEditor {
-		protected JButton button;
+	public StorePanel(Game game) {
+		this.game = game;
+		initialise();
+	}
 
-		private String label;
-		private int index;
+	public void addButton(JTable table, int col) {
+		TableColumn column = table.getColumnModel().getColumn(col);
+		column.setCellEditor(new ButtonEditor(new JCheckBox()));
+		column.setCellRenderer(new ButtonRenderer());
 
-		private boolean isPushed;
+	}
 
-		public ButtonEditor(JCheckBox checkBox) {
-			super(checkBox);
-			button = new JButton();
-			button.setOpaque(true);
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					fireEditingStopped();
-				}
-			});
-		}
+	private void initialise() {
+		Store store = new Store();
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
+		JPanel namePanel = new JPanel();
+		namePanel.setBounds(500, 0, 30, 30);
+		JLabel label = new JLabel("General Store");
+		label.setFont(new Font("Tahoma", Font.BOLD, 18));
+		namePanel.add(label);
+		namePanel.setSize(130, 30);
+
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+
+		tabbedPane.setBounds(50, 20, 700, 400);
+
+		List<Crop> crops = store.getCropList();
+		StoreCropTableModel cropTableModel = new StoreCropTableModel(crops, game);
+		cropTable = new JTable(cropTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return cropColumnToolTips[realIndex];
+					}
+				};
 			}
-			System.out.println(row);
-			index = row;
-			label = (value == null) ? "" : value.toString();
-			button.setText(label);
-			isPushed = true;
-			return button;
-		}
+		};
+		this.addButton(cropTable, 5);
+		JScrollPane cropScroll = new JScrollPane(cropTable);
 
-		public Object getCellEditorValue() {
-			if (isPushed) {
-				//
-				Animal animal = store.getAnimalList().get(index);
-				//
-				JOptionPane.showMessageDialog(button, label + animal.getType().getDisplay() + ": Ouch!");
-				// System.out.println(label + ": Ouch!");
+		tabbedPane.add("Crops", cropScroll);
+
+		List<Animal> animals = store.getAnimalList();
+		StoreAnimalTableModel animalTableModel = new StoreAnimalTableModel(animals, game);
+		animalTable = new JTable(animalTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return animalColumnToolTips[realIndex];
+					}
+				};
 			}
-			isPushed = false;
-			return new String(label);
-		}
+		};
 
-		public boolean stopCellEditing() {
-			isPushed = false;
-			return super.stopCellEditing();
-		}
+		this.addButton(animalTable, 4);
+		JScrollPane animalScroll = new JScrollPane(animalTable);
 
-		protected void fireEditingStopped() {
-			super.fireEditingStopped();
-		}
+		tabbedPane.add("Animals", animalScroll);
+
+		List<Item> items = store.getItemList();
+		StoreItemTableModel itemTableModel = new StoreItemTableModel(items, game);
+		itemTable = new JTable(itemTableModel) {
+			protected JTableHeader createDefaultTableHeader() {
+				return new JTableHeader(columnModel) {
+					public String getToolTipText(MouseEvent e) {
+						String tip = null;
+						java.awt.Point p = e.getPoint();
+						int index = columnModel.getColumnIndexAtX(p.x);
+						int realIndex = columnModel.getColumn(index).getModelIndex();
+						return itemColumnToolTips[realIndex];
+					}
+				};
+			}
+		};
+		this.addButton(itemTable, 5);
+		JScrollPane itemScroll = new JScrollPane(itemTable);
+
+		tabbedPane.add("Farm Supplies", itemScroll);
+
+		this.setLayout(null);
+		this.add(namePanel);
+		this.add(tabbedPane);
+
 	}
 
 }

@@ -7,7 +7,7 @@ import farm.nz.type.ItemType;
  * @author peter.mclean
  *
  */
-public class Item extends StoreItem {
+public class Item extends StoreItem implements Cloneable {
 	/**
 	 * Represents the type of this item.
 	 */
@@ -114,6 +114,10 @@ public class Item extends StoreItem {
 	 */
 	public void setBonus(int bonus) {
 		this.bonus = bonus;
+	}
+
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 
 }
