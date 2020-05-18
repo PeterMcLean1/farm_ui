@@ -63,16 +63,12 @@ public class Game {
 	}
 
 	public void incrementCurrentDay() {
-
 		this.currentDay++;
-
 		support.firePropertyChange(DAY, 1, 2);
 	}
 
 	public void incrementActionCount() {
-
 		this.actionCount++;
-
 		support.firePropertyChange(ACTION, 1, 2);
 	}
 
@@ -87,6 +83,7 @@ public class Game {
 
 	public void setDaysToPlay(int daysToPlay) {
 		this.daysToPlay = daysToPlay;
+		support.firePropertyChange(DAY, 1, 2);
 
 	}
 

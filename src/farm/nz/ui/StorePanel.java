@@ -1,6 +1,7 @@
 package farm.nz.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -9,6 +10,7 @@ import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -212,16 +214,17 @@ public class StorePanel extends JPanel {
 	private JTable cropTable;
 	private JTable animalTable;
 	private JTable itemTable;
-	protected String[] animalColumnToolTips = { null, null,
-			"Base amount of money provided by the animal at the end of the day",
-			"How many of this animal you have on your farm" };
+	protected String[] animalColumnToolTips = { null, null, "The base amount of income provided at the end of each day",
+			"The number of animals currently on your farm" };
 	protected String[] itemColumnToolTips = { null, null,
-			"Crop bonus reduces days to harvest, Animal bonus adds to health", "What you can use the item on", null };
-	protected String[] cropColumnToolTips = { null, null, "How much you can sell the crop for when harvested", null,
-			null };
+			"Crop bonus reduces days to harvest, Animal bonus adds to health", null,
+			"The number of farm supplies currently on your farm", null };
+	protected String[] cropColumnToolTips = { null, null, "The price you can sell the crop for when harvested", null,
+			"The number of crops currently planted on your farm" };
 
 	public StorePanel(Game game) {
-		initialise(game);
+		this.game = game;
+		initialise();
 	}
 
 	public void addButton(JTable table, int col) {
@@ -231,9 +234,16 @@ public class StorePanel extends JPanel {
 
 	}
 
-	private void initialise(Game game) {
-		this.game = game;
+	private void initialise() {
 		Store store = new Store();
+
+		JPanel namePanel = new JPanel();
+		namePanel.setBounds(500, 0, 30, 30);
+		JLabel label = new JLabel("General Store");
+		label.setFont(new Font("Tahoma", Font.BOLD, 18));
+		namePanel.add(label);
+		namePanel.setSize(130, 30);
+
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
 		tabbedPane.setBounds(50, 20, 700, 400);
@@ -300,6 +310,7 @@ public class StorePanel extends JPanel {
 		tabbedPane.add("Farm Supplies", itemScroll);
 
 		this.setLayout(null);
+		this.add(namePanel);
 		this.add(tabbedPane);
 
 	}

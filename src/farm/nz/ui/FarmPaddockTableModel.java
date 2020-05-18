@@ -1,6 +1,5 @@
 package farm.nz.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -10,18 +9,10 @@ import farm.nz.model.Game;
 import farm.nz.model.Paddock;
 
 public class FarmPaddockTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Paddock ID", "Crop", "Days until mature", "Sell Price", "Water (free)",
-			"", "" }; // water,
-	// use
-	// item,
-	// harvest
-
+	private static final String[] COLUMN_NAMES = { "Paddock #", "Crop name", "Days to harvest", "Sell price",
+			"(free, +2 growth)", "(+bonus growth)", "(sell crop)" };
 	private List<Paddock> paddocks;
 	private Game game;
-
-	public FarmPaddockTableModel() {
-		paddocks = new ArrayList<Paddock>();
-	}
 
 	public FarmPaddockTableModel(Game game) {
 		this.paddocks = game.getFarm().getPaddocks();
@@ -71,15 +62,11 @@ public class FarmPaddockTableModel extends AbstractTableModel {
 		case 2:
 			if (null == crop) {
 				return "-";
-			} else if (crop.getMaturity() > 0) {
-
-				return crop.getDayPlanted() + crop.getMaturity() - game.getCurrentDay();
-			} else {
-				return 0;
 			}
-
+			int days = crop.getDayPlanted() + crop.getMaturity() - game.getCurrentDay();
+			return days >= 0 ? days : 0;
 		case 3:
-			return (null != crop) ? crop.getSalePrice() : "-";
+			return (null != crop) ? "$" + crop.getSalePrice() : "-";
 		case 4:
 			return "Water";
 		case 5:

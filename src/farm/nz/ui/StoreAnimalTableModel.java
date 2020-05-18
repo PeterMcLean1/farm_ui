@@ -1,6 +1,5 @@
 package farm.nz.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -10,14 +9,10 @@ import farm.nz.model.Game;
 
 public class StoreAnimalTableModel extends AbstractTableModel {
 
-	private static final String[] COLUMN_NAMES = { "Animal", "Price", "Base income  (?)", "On Farm (?)", "" };
+	private static final String[] COLUMN_NAMES = { "Animal type", "Price", "Base income/day  (?)", "On Farm (?)", "" };
 	private static final String BUY = "Buy";
 	private List<Animal> animals;
 	private Game game;
-
-	public StoreAnimalTableModel() {
-		animals = new ArrayList<Animal>();
-	}
 
 	public StoreAnimalTableModel(List<Animal> animals, Game game) {
 		this.animals = animals;
@@ -55,26 +50,6 @@ public class StoreAnimalTableModel extends AbstractTableModel {
 		return animals.size();
 	}
 
-//	@Override
-//	public void setValueAt(Object value, int row, int column) {
-//		Animal animal = getAnimal(row);
-//
-//		switch (column) {
-//		case 0:
-//			animal.setType(animal.getType());
-//			break;
-//		case 1:
-//			animal.setPurchasePrice(animal.getPurchasePrice());
-//			;
-//			break;
-//		case 2:
-//			animal.setBaseIncome(animal.getBaseIncome());
-//			break;
-//		}
-//
-//		fireTableCellUpdated(row, column);
-//	}
-
 	@Override
 	public Object getValueAt(int row, int column) {
 		Animal animal = getAnimal(row);
@@ -83,9 +58,9 @@ public class StoreAnimalTableModel extends AbstractTableModel {
 		case 0:
 			return animal.getType().getDisplay();
 		case 1:
-			return animal.getPurchasePrice();
+			return "$" + animal.getPurchasePrice();
 		case 2:
-			return animal.getBaseIncome();
+			return "$" + animal.getBaseIncome();
 		case 3:
 			int count = 0;
 			for (Animal a : game.getFarm().getAnimals()) {

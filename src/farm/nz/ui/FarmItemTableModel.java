@@ -1,6 +1,5 @@
 package farm.nz.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -8,13 +7,8 @@ import javax.swing.table.AbstractTableModel;
 import farm.nz.model.Item;
 
 public class FarmItemTableModel extends AbstractTableModel {
-	private static String[] COLUMN_NAMES = { "Item", "Bonus  (?)", "Use on  (?)" };
-
+	private static final String[] COLUMN_NAMES = { "Item name", "Bonus  (?)", "Used on" };
 	private List<Item> items;
-
-	public FarmItemTableModel() {
-		items = new ArrayList<Item>();
-	}
 
 	public FarmItemTableModel(List<Item> items) {
 		this.items = items;

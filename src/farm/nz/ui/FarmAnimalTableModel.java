@@ -1,6 +1,5 @@
 package farm.nz.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -9,14 +8,9 @@ import farm.nz.model.Animal;
 
 public class FarmAnimalTableModel extends AbstractTableModel {
 
-	private static String[] COLUMN_NAMES = { "Animal Type", "Base income", "Happiness", "Health", "", "" }; // play, use
-																											// item
-
+	private static final String[] COLUMN_NAMES = { "Animal type", "Base income/day", "Happiness", "Health",
+			"(+2 happiness)", "(+bonus heath)" };
 	private List<Animal> animals;
-
-	public FarmAnimalTableModel() {
-		animals = new ArrayList<Animal>();
-	}
 
 	public FarmAnimalTableModel(List<Animal> animals) {
 		this.animals = animals;
@@ -68,7 +62,7 @@ public class FarmAnimalTableModel extends AbstractTableModel {
 		case 3:
 			return animal.getHealth();
 		case 4:
-			return "Play (+2 Happy)";
+			return "Play";
 		case 5:
 			return "Use item";
 		default:

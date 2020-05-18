@@ -60,6 +60,7 @@ public class FarmUIApplication extends JFrame {
 	final static String STORE_PANEL = "General Store";
 	final static String HELP = "Instructions";
 	final static String MOVE_DAY_PANEL = "Go to next day";
+	public final static String START_GAME = "Start";
 
 	/**
 	 * Launch the application.
@@ -78,6 +79,7 @@ public class FarmUIApplication extends JFrame {
 
 	private JLabel statusLabel = new JLabel();
 	private JPanel cards;
+	private JPanel startCards;
 
 	private Game game;
 
@@ -93,7 +95,13 @@ public class FarmUIApplication extends JFrame {
 		cl.show(cards, card);
 	}
 
+	public void showStartCard(String card) {
+		CardLayout cl = (CardLayout) (startCards.getLayout());
+		cl.show(startCards, card);
+	}
+
 	public void addComponentToPane(Container pane, Game game) {
+
 		JPanel topPane = new JPanel(); // use default FlowLayout
 		topPane.setLayout(new GridLayout());
 		game.addPropertyChangeListener(Game.ACCOUNT, new StoreModelListener(this));
@@ -127,7 +135,6 @@ public class FarmUIApplication extends JFrame {
 			}
 		});
 		menuBar.add(farmMenu);
-
 		JMenu storeMenu = new JMenu("General Store");
 		storeMenu.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -149,21 +156,29 @@ public class FarmUIApplication extends JFrame {
 		topPane.add(menuBar);
 
 		// create the game view cards
-		JPanel card1 = new SetupPanel(this, game);
+		// JPanel card1 = new SetupPanel(this, game);
 		JPanel card2 = new InstructionPanel();
 		JPanel card3 = new FarmPanel(game);
 		JPanel card4 = new StorePanel(game);
 
 		// Create the panel with card layout and add the "cards" to it.
 		cards = new JPanel(new CardLayout());
-		cards.add(card1, SETUP_PANEL);
+
 		cards.add(card2, HELP);
 		cards.add(card3, FARM_PANEL);
 		cards.add(card4, STORE_PANEL);
 
 		// now add the menu panel and cards to the contentPane
-		pane.add(topPane, BorderLayout.PAGE_START);
-		pane.add(cards, BorderLayout.CENTER);
+		JPanel gamePanel = new JPanel(new BorderLayout());
+		gamePanel.add(topPane, BorderLayout.PAGE_START);
+		gamePanel.add(cards);
+
+		JPanel startCard1 = new SetupPanel(this, game);
+
+		startCards = new JPanel(new CardLayout());
+		startCards.add(startCard1, SETUP_PANEL);
+		startCards.add(gamePanel, START_GAME);
+		pane.add(startCards);
 
 	}
 
@@ -174,7 +189,6 @@ public class FarmUIApplication extends JFrame {
 		List<Animal> animals = farm.getAnimals();
 		for (Animal animal : animals) {
 			bonus = bonus + animal.getDailyIncome();
-
 		}
 
 		game.setAccount(game.getAccount() + bonus);
@@ -192,7 +206,14 @@ public class FarmUIApplication extends JFrame {
 			for (Item item : farm.getItems()) {
 				score = score + item.getResidualValue();
 			}
-			JOptionPane.showMessageDialog(this, "Your score is: " + score, "GAME OVER", JOptionPane.ERROR_MESSAGE);
+			StringBuffer sb = new StringBuffer();
+			sb.append("Farm name: " + farm.getName() + "\n");
+			sb.append("Game duration: " + game.getDaysToPlay() + "\n");
+			sb.append("Profit made: " + (game.getAccount() - game.getFarm().getType().getStartMoney()) + "\n\n");
+			sb.append("Final score: " + score + "\n");
+
+			JOptionPane.showMessageDialog(this, sb, "GAME OVER", JOptionPane.ERROR_MESSAGE);
+			System.exit(NORMAL);
 		} else {
 			this.dayStart();
 		}
@@ -239,7 +260,7 @@ public class FarmUIApplication extends JFrame {
 
 			switch (eventType) {
 			case 0:
-				// drought
+				// Drought
 				// get farm crops and delete half (rounded down)
 				List<Paddock> paddocks = farm.getPaddocks();
 				List<Paddock> cropPaddock = new ArrayList<Paddock>();
@@ -256,7 +277,6 @@ public class FarmUIApplication extends JFrame {
 					affectedPaddock.setCrop(null);
 					cropsLost++;
 					cropLength--;
-
 				}
 
 				sb.append("A drought has occured!\n");
@@ -264,7 +284,7 @@ public class FarmUIApplication extends JFrame {
 				sb.append("You have lost ");
 				sb.append(cropsLost);
 				sb.append(" crop");
-				if (cropsLost > 1) {
+				if (cropsLost != 1) {
 					sb.append("s");
 				}
 
@@ -292,6 +312,7 @@ public class FarmUIApplication extends JFrame {
 					// animals
 					int deleteAnimal = rnd.nextInt(animalLength);
 					animals.remove(deleteAnimal);
+					animalsLost++;
 					List<Animal> animalList = new ArrayList<Animal>(animals);
 					for (Animal a : animalList) {
 						a.setHappy(a.getHappy() - 2);
@@ -316,7 +337,7 @@ public class FarmUIApplication extends JFrame {
 				// money earned scaled number of farm crops and animals
 				int winnings = 30;
 				animalLength = farm.getAnimals().size();
-				winnings = winnings + 5 * animalLength;
+				winnings = winnings + (5 * animalLength);
 
 				int numberCrops = 0;
 				for (Paddock p : farm.getPaddocks()) {
@@ -324,7 +345,7 @@ public class FarmUIApplication extends JFrame {
 						numberCrops++;
 					}
 				}
-				winnings = winnings + 5 * numberCrops;
+				winnings = winnings + (6 * numberCrops);
 				game.setAccount(game.getAccount() + winnings);
 
 				sb.append("Your farm has won the top award at the annual county fair.\n");
@@ -347,18 +368,21 @@ public class FarmUIApplication extends JFrame {
 		Farmer farmer = new Farmer();
 		Farm farm = new Farm(farmer);
 		game = new Game(farm);
-		this.setTitle("Swing Valley Farm");
-		game.setAccount(50);
 		farm.setType(FarmType.FLAT);
-		farm.setName("Peter Valley Farm");
-		game.setDaysToPlay(5);
+		game.setAccount(FarmType.FLAT.getStartMoney());
 		game.setMaxDailyActions(2);
+		game.setDaysToPlay(5);
 		farm.addPaddock(new Paddock());
 		farm.addPaddock(new Paddock());
+
+		this.setTitle("Swing Valley Farm");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		// add all the containers
+
 		this.addComponentToPane(this.getContentPane(), game);
 		this.setPreferredSize(new Dimension(800, 600));
+		this.setResizable(false);
 		// Display the window.
 		this.pack();
 		this.setVisible(true);

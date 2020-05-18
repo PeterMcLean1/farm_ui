@@ -5,10 +5,12 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -28,158 +30,226 @@ import farm.nz.type.FarmType;
 public class SetupPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JTextField farmerNameField;
-	private JTextField farmerAgeField;
-	private JTextField farmNameField;
-
+	private JLabel farmerNameValidationLabel = new JLabel("");
+	private JLabel farmerAgeValidationLabel = new JLabel("");
 	private JLabel farmNameValidationLabel = new JLabel("");
+	private FarmUIApplication gameFrame;
+	private Game game;
+	private JButton startButton = new JButton("START >");
 
-	/**
-	 * Create the panel.
-	 */
 	public SetupPanel(FarmUIApplication jframe, Game game) {
+		this.gameFrame = jframe;
+		this.game = game;
 		initialise(game);
 	}
 
 	private void initialise(Game game) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 118, 22, 59, 55, 31, 29, 30, 22, 0 };
-		gridBagLayout.rowHeights = new int[] { 22, 20, 22, 31, 20, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.columnWidths = new int[] { 118, 118, 118, 118, 118, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 22, 0, 0, 20, 22, 0, 0, 31, 20, 20, 20, 20 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+				0.0 };
 		setLayout(gridBagLayout);
 
-		JLabel lblNewLabel_9 = new JLabel("Please enter game parameters");
-		lblNewLabel_9.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		GridBagConstraints gbc_lblNewLabel_9 = new GridBagConstraints();
-		gbc_lblNewLabel_9.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblNewLabel_9.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9.gridwidth = 4;
-		gbc_lblNewLabel_9.gridx = 0;
-		gbc_lblNewLabel_9.gridy = 0;
-		this.add(lblNewLabel_9, gbc_lblNewLabel_9);
+		JLabel lblHeading = new JLabel("Please enter your starting options:");
+		lblHeading.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblHeading = new GridBagConstraints();
+		gbc_lblHeading.anchor = GridBagConstraints.NORTHWEST;
+		gbc_lblHeading.insets = new Insets(0, 0, 5, 5);
+		gbc_lblHeading.gridwidth = 4;
+		gbc_lblHeading.gridx = 1;
+		gbc_lblHeading.gridy = 1;
+		this.add(lblHeading, gbc_lblHeading);
 
-		JLabel lblNewLabel_6 = new JLabel("");
-		GridBagConstraints gbc_lblNewLabel_6 = new GridBagConstraints();
-		gbc_lblNewLabel_6.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_6.gridx = 5;
-		gbc_lblNewLabel_6.gridy = 0;
-		this.add(lblNewLabel_6, gbc_lblNewLabel_6);
+		// farmer name components
+		JLabel lblFarmerName = new JLabel("Farmer name:");
+		GridBagConstraints gbc_lblFarmerName = new GridBagConstraints();
+		gbc_lblFarmerName.anchor = GridBagConstraints.EAST;
+		gbc_lblFarmerName.fill = GridBagConstraints.VERTICAL;
+		gbc_lblFarmerName.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmerName.gridx = 1;
+		gbc_lblFarmerName.gridy = 3;
+		this.add(lblFarmerName, gbc_lblFarmerName);
 
-		farmNameValidationLabel.setForeground(Color.RED);
-		farmNameValidationLabel.setText("3-15 chars, no special chars");
+		JTextField farmerNameField = new JTextField();
+		GridBagConstraints gbc_fldFarmerName = new GridBagConstraints();
+		gbc_fldFarmerName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_fldFarmerName.anchor = GridBagConstraints.NORTH;
+		gbc_fldFarmerName.insets = new Insets(0, 0, 5, 5);
+		// gbc_farmerNameField.gridwidth = 2;
+		gbc_fldFarmerName.gridx = 2;
+		gbc_fldFarmerName.gridy = 3;
+		this.add(farmerNameField, gbc_fldFarmerName);
+		farmerNameField.setColumns(10);
+		farmerNameField.setInputVerifier(new FarmerNameVerifier());
+
+		JLabel lblFarmerNameCount = new JLabel("");
+		GridBagConstraints gbc_lblFarmerNameCount = new GridBagConstraints();
+		gbc_lblFarmerNameCount.anchor = GridBagConstraints.WEST;
+		gbc_lblFarmerNameCount.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmerNameCount.gridx = 3;
+		gbc_lblFarmerNameCount.gridy = 3;
+		this.add(lblFarmerNameCount, gbc_lblFarmerNameCount);
+
+		farmerNameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				lblFarmerNameCount.setText(farmerNameField.getText().length() + "");
+				farmerNameValidationLabel.setEnabled(!farmerNameField.isValid());
+			}
+		});
+
+		farmerNameValidationLabel.setForeground(Color.RED);
+		farmerNameValidationLabel.setText("3-15 letters, no special characters");
 		GridBagConstraints gbc_farmNameValidationLabel = new GridBagConstraints();
-		gbc_farmNameValidationLabel.anchor = GridBagConstraints.EAST;
+		gbc_farmNameValidationLabel.anchor = GridBagConstraints.NORTHWEST;
 		gbc_farmNameValidationLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_farmNameValidationLabel.gridwidth = 2;
-		gbc_farmNameValidationLabel.gridx = 0;
-		gbc_farmNameValidationLabel.gridy = 1;
-		this.add(farmNameValidationLabel, gbc_farmNameValidationLabel);
+		// gbc_farmNameValidationLabel.gridwidth = 2;
+		gbc_farmNameValidationLabel.gridx = 2;
+		gbc_farmNameValidationLabel.gridy = 4;
+		this.add(farmerNameValidationLabel, gbc_farmNameValidationLabel);
 
 		// farmer age components
-		JLabel lblNewLabel_1 = new JLabel("Farmer age:");
-		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-		gbc_lblNewLabel_1.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_1.gridx = 2;
-		gbc_lblNewLabel_1.gridy = 1;
-		this.add(lblNewLabel_1, gbc_lblNewLabel_1);
+		JLabel lblFarmerAge = new JLabel("Farmer age:");
+		GridBagConstraints gbc_lblFarmerAge = new GridBagConstraints();
+		gbc_lblFarmerAge.anchor = GridBagConstraints.EAST;
+		gbc_lblFarmerAge.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmerAge.gridx = 1;
+		gbc_lblFarmerAge.gridy = 5;
+		this.add(lblFarmerAge, gbc_lblFarmerAge);
 
-		farmerAgeField = new JTextField();
+		JTextField farmerAgeField = new JTextField();
 		GridBagConstraints gbc_farmerAgeField = new GridBagConstraints();
-		gbc_farmerAgeField.anchor = GridBagConstraints.NORTHEAST;
+		gbc_farmerAgeField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_farmerAgeField.anchor = GridBagConstraints.NORTH;
 		gbc_farmerAgeField.insets = new Insets(0, 0, 5, 5);
-		gbc_farmerAgeField.gridwidth = 2;
-		gbc_farmerAgeField.gridx = 3;
-		gbc_farmerAgeField.gridy = 1;
+		gbc_farmerAgeField.gridx = 2;
+		gbc_farmerAgeField.gridy = 5;
 		this.add(farmerAgeField, gbc_farmerAgeField);
 		farmerAgeField.setColumns(10);
+		farmerAgeField.setInputVerifier(new FarmerAgeVerifier());
 
-		JLabel lblNewLabel_7 = new JLabel("1-100");
-		lblNewLabel_7.setForeground(Color.RED);
-		lblNewLabel_7.setEnabled(false);
-		GridBagConstraints gbc_lblNewLabel_7 = new GridBagConstraints();
-		gbc_lblNewLabel_7.anchor = GridBagConstraints.EAST;
-		gbc_lblNewLabel_7.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_7.gridx = 5;
-		gbc_lblNewLabel_7.gridy = 1;
-		this.add(lblNewLabel_7, gbc_lblNewLabel_7);
+		farmerAgeField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				farmerAgeValidationLabel.setEnabled(!farmerAgeField.isValid());
+			}
+		});
+
+		farmerAgeValidationLabel = new JLabel("Number between 1-100");
+		farmerAgeValidationLabel.setForeground(Color.RED);
+		GridBagConstraints gbc_lblFarmerAgeValidation = new GridBagConstraints();
+		gbc_lblFarmerAgeValidation.anchor = GridBagConstraints.NORTHWEST;
+		gbc_lblFarmerAgeValidation.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmerAgeValidation.gridx = 2;
+		gbc_lblFarmerAgeValidation.gridy = 6;
+		this.add(farmerAgeValidationLabel, gbc_lblFarmerAgeValidation);
 
 		// farm name components
-		JLabel lblNewLabel_2 = new JLabel("Farm name:");
-		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
-		gbc_lblNewLabel_2.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel_2.gridwidth = 2;
-		gbc_lblNewLabel_2.gridx = 6;
-		gbc_lblNewLabel_2.gridy = 1;
-		this.add(lblNewLabel_2, gbc_lblNewLabel_2);
+		JLabel lblFarmName = new JLabel("Farm name:");
+		GridBagConstraints gbc_lblFarmName = new GridBagConstraints();
+		gbc_lblFarmName.anchor = GridBagConstraints.EAST;
+		gbc_lblFarmName.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmName.gridx = 1;
+		gbc_lblFarmName.gridy = 7;
+		this.add(lblFarmName, gbc_lblFarmName);
 
-		farmNameField = new JTextField();
+		JTextField farmNameField = new JTextField();
 		GridBagConstraints gbc_farmNameField = new GridBagConstraints();
-		gbc_farmNameField.anchor = GridBagConstraints.EAST;
+		gbc_farmNameField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_farmNameField.insets = new Insets(0, 0, 5, 5);
-		gbc_farmNameField.gridx = 0;
-		gbc_farmNameField.gridy = 2;
+		gbc_farmNameField.gridx = 2;
+		gbc_farmNameField.gridy = 7;
 		this.add(farmNameField, gbc_farmNameField);
 		farmNameField.setColumns(10);
+		farmNameField.setInputVerifier(new FarmNameVerifier());
 
-		JLabel lblNewLabel_8 = new JLabel("Cannot be empty");
-		lblNewLabel_8.setForeground(Color.RED);
-		lblNewLabel_8.setEnabled(false);
-		GridBagConstraints gbc_lblNewLabel_8 = new GridBagConstraints();
-		gbc_lblNewLabel_8.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_8.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_8.gridwidth = 2;
-		gbc_lblNewLabel_8.gridx = 1;
-		gbc_lblNewLabel_8.gridy = 2;
-		this.add(lblNewLabel_8, gbc_lblNewLabel_8);
+		farmNameValidationLabel = new JLabel("1-25 letters and spaces only");
+		farmNameValidationLabel.setForeground(Color.RED);
+		GridBagConstraints gbc_lblFarmNameValidation = new GridBagConstraints();
+		gbc_lblFarmNameValidation.anchor = GridBagConstraints.NORTHWEST;
+		gbc_lblFarmNameValidation.insets = new Insets(0, 0, 5, 5);
+		// gbc_lblNewLabel_8.gridwidth = 2;
+		gbc_lblFarmNameValidation.gridx = 2;
+		gbc_lblFarmNameValidation.gridy = 8;
+		this.add(farmNameValidationLabel, gbc_lblFarmNameValidation);
+
+		farmNameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				farmNameValidationLabel.setEnabled(!farmNameField.isValid());
+			}
+		});
 
 		// farm type components
-		JLabel lblNewLabel_3 = new JLabel("Farm type:");
-		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
-		gbc_lblNewLabel_3.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_3.gridx = 3;
-		gbc_lblNewLabel_3.gridy = 2;
-		this.add(lblNewLabel_3, gbc_lblNewLabel_3);
+		JLabel lblFarmType = new JLabel("Farm type:");
+		GridBagConstraints gbc_lblFarmType = new GridBagConstraints();
+		gbc_lblFarmType.anchor = GridBagConstraints.EAST;
+		gbc_lblFarmType.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFarmType.gridx = 1;
+		gbc_lblFarmType.gridy = 9;
+		this.add(lblFarmType, gbc_lblFarmType);
+
+		JLabel lblDifficulty = new JLabel();
+		GridBagConstraints gbc_lblDifficulty = new GridBagConstraints();
+		gbc_lblDifficulty.anchor = GridBagConstraints.WEST;
+		gbc_lblDifficulty.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDifficulty.gridx = 3;
+		gbc_lblDifficulty.gridy = 9;
+		this.add(lblDifficulty, gbc_lblDifficulty);
 
 		JComboBox<FarmType> comboBox = new JComboBox<FarmType>();
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.anchor = GridBagConstraints.NORTHWEST;
-		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
-		gbc_comboBox.gridx = 4;
-		gbc_comboBox.gridy = 2;
-		this.add(comboBox, gbc_comboBox);
+
+		comboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.SELECTED == e.getStateChange()) {
+					FarmType type = (FarmType) e.getItem();
+					game.getFarm().setType(type);
+					game.setAccount(type.getStartMoney());
+					lblDifficulty.setText(game.getFarm().getType().getDifficulty());
+				}
+			}
+		});
 		comboBox.addItem(FarmType.FLAT);
+		comboBox.addItem(FarmType.HILL);
 		comboBox.addItem(FarmType.RIVER);
 		comboBox.addItem(FarmType.FOREST);
-		comboBox.addItem(FarmType.HILL);
+
+		GridBagConstraints gbc_comboBox = new GridBagConstraints();
+		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox.anchor = GridBagConstraints.NORTH;
+		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox.gridx = 2;
+		gbc_comboBox.gridy = 9;
+		this.add(comboBox, gbc_comboBox);
 
 		// days to play components
-		JLabel lblNewLabel_4 = new JLabel("Days to play:");
-		GridBagConstraints gbc_lblNewLabel_4 = new GridBagConstraints();
-		gbc_lblNewLabel_4.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_4.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_4.gridwidth = 2;
-		gbc_lblNewLabel_4.gridx = 5;
-		gbc_lblNewLabel_4.gridy = 2;
-		this.add(lblNewLabel_4, gbc_lblNewLabel_4);
+		JLabel lblDaysToPlay = new JLabel("Days to play:");
+		GridBagConstraints gbc_lblDaysToPlay = new GridBagConstraints();
+		gbc_lblDaysToPlay.anchor = GridBagConstraints.EAST;
+		gbc_lblDaysToPlay.insets = new Insets(0, 0, 5, 5);
+		// gbc_lblNewLabel_4.gridwidth = 2;
+		gbc_lblDaysToPlay.gridx = 1;
+		gbc_lblDaysToPlay.gridy = 10;
+		this.add(lblDaysToPlay, gbc_lblDaysToPlay);
 
-		JLabel lblNewLabel_5 = new JLabel("");
-		GridBagConstraints gbc_lblNewLabel_5 = new GridBagConstraints();
-		gbc_lblNewLabel_5.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_5.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel_5.gridx = 7;
-		gbc_lblNewLabel_5.gridy = 2;
-		this.add(lblNewLabel_5, gbc_lblNewLabel_5);
+		JLabel lblDaySlider = new JLabel("");
+		GridBagConstraints gbc_lblDaySlider = new GridBagConstraints();
+		gbc_lblDaySlider.anchor = GridBagConstraints.WEST;
+		gbc_lblDaySlider.insets = new Insets(0, 0, 5, 0);
+		gbc_lblDaySlider.gridx = 3;
+		gbc_lblDaySlider.gridy = 10;
+		this.add(lblDaySlider, gbc_lblDaySlider);
 
 		JSlider slider = new JSlider();
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				lblNewLabel_5.setText(slider.getValue() + " days");
+				game.setDaysToPlay(slider.getValue());
+				lblDaySlider.setText(slider.getValue() + " days");
 			}
 		});
+
 		slider.setToolTipText("Days to play");
 		slider.setSnapToTicks(true);
 		slider.setPaintTicks(true);
@@ -187,67 +257,89 @@ public class SetupPanel extends JPanel {
 		slider.setMinorTickSpacing(1);
 		slider.setMinimum(5);
 		slider.setMaximum(10);
+		slider.setValue(5);
 		GridBagConstraints gbc_slider = new GridBagConstraints();
-		gbc_slider.anchor = GridBagConstraints.NORTHEAST;
+		gbc_slider.fill = GridBagConstraints.HORIZONTAL;
 		gbc_slider.insets = new Insets(0, 0, 5, 5);
-		gbc_slider.gridwidth = 4;
-		gbc_slider.gridx = 0;
-		gbc_slider.gridy = 3;
+		// gbc_slider.gridwidth = 4;
+		gbc_slider.gridx = 2;
+		gbc_slider.gridy = 10;
 		this.add(slider, gbc_slider);
 
-		JButton btnNewButton = new JButton("NEXT >");
-		btnNewButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+		startButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gameFrame.showStartCard(FarmUIApplication.START_GAME);
 
 			}
 		});
-		btnNewButton.setEnabled(true);
-		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.anchor = GridBagConstraints.WEST;
-		gbc_btnNewButton.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton.gridwidth = 3;
-		gbc_btnNewButton.gridx = 4;
-		gbc_btnNewButton.gridy = 3;
-		this.add(btnNewButton, gbc_btnNewButton);
+		startButton.setEnabled(false);
+		GridBagConstraints gbc_startButton = new GridBagConstraints();
+		gbc_startButton.anchor = GridBagConstraints.WEST;
+		gbc_startButton.insets = new Insets(0, 0, 5, 5);
+		gbc_startButton.gridx = 4;
+		gbc_startButton.gridy = 11;
+		this.add(startButton, gbc_startButton);
 
-		farmerNameField = new JTextField();
-		farmerNameField.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				String input = farmerNameField.getText();
-				lblNewLabel_6.setText(input.length() + "");
+	}
 
-			}
-		});
-
-		// farmer name components
-		JLabel lblNewLabel = new JLabel("Farmer name:");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.anchor = GridBagConstraints.EAST;
-		gbc_lblNewLabel.fill = GridBagConstraints.VERTICAL;
-		gbc_lblNewLabel.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNewLabel.gridwidth = 2;
-		gbc_lblNewLabel.gridx = 0;
-		gbc_lblNewLabel.gridy = 4;
-		this.add(lblNewLabel, gbc_lblNewLabel);
-		GridBagConstraints gbc_farmerNameField = new GridBagConstraints();
-		gbc_farmerNameField.anchor = GridBagConstraints.NORTHWEST;
-		gbc_farmerNameField.insets = new Insets(0, 0, 0, 5);
-		gbc_farmerNameField.gridwidth = 2;
-		gbc_farmerNameField.gridx = 2;
-		gbc_farmerNameField.gridy = 4;
-		this.add(farmerNameField, gbc_farmerNameField);
-		farmerNameField.setColumns(10);
-		farmerNameField.setInputVerifier(new FarmerNameVerifier());
-
+	private void startButtonChecker() {
+		// check farmer name is valid
+		// check farmer age is valid
+		// check farm name is valid
+		startButton.setEnabled(!game.getFarm().getFarmer().getName().isEmpty()
+				&& game.getFarm().getFarmer().getAge() > 0 && !game.getFarm().getName().isEmpty());
 	}
 
 	private class FarmerNameVerifier extends InputVerifier {
 		public boolean verify(JComponent input) {
 			JTextField tf = (JTextField) input;
-			if (tf.getText().matches("[A-Za-z0-9]{3,15}")) {
+			// letters only allowed
+			if (tf.getText().matches("[A-Za-z]{3,15}")) {
+				farmerNameValidationLabel.setEnabled(false);
+				game.getFarm().getFarmer().setName(tf.getText());
+				startButtonChecker();
+				return true;
+			} else {
+				farmerNameValidationLabel.setEnabled(true);
+				return false;
+			}
+
+		}
+	}
+
+	private class FarmerAgeVerifier extends InputVerifier {
+		public boolean verify(JComponent input) {
+			JTextField tf = (JTextField) input;
+			int value = 0;
+			try {
+				value = Integer.parseInt(tf.getText());
+			} catch (NumberFormatException n) {
+				// not a valid number format
+				farmerAgeValidationLabel.setEnabled(true);
+				return false;
+			}
+			if (0 <= value && 100 >= value) {
+				farmerAgeValidationLabel.setEnabled(false);
+				game.getFarm().getFarmer().setAge(value);
+				startButtonChecker();
+				return true;
+
+			} else {
+				farmerAgeValidationLabel.setEnabled(true);
+				return false;
+			}
+
+		}
+	}
+
+	private class FarmNameVerifier extends InputVerifier {
+		public boolean verify(JComponent input) {
+			JTextField tf = (JTextField) input;
+			// letters and spaces allowed
+			if (tf.getText().matches("[A-Za-z ]{1,25}")) {
 				farmNameValidationLabel.setEnabled(false);
+				game.getFarm().setName(tf.getText());
+				startButtonChecker();
 				return true;
 			} else {
 				farmNameValidationLabel.setEnabled(true);

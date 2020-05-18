@@ -14,7 +14,7 @@ public class Farm {
 	public static final String ANIMAL = "animal";
 	public static final String ITEM = "item";
 
-	private String name;
+	private String name = "";
 	private FarmType type;
 	private Farmer farmer;
 	private List<Paddock> paddocks = new ArrayList<Paddock>();
@@ -36,7 +36,6 @@ public class Farm {
 	}
 
 	public void addAnimal(Animal animal) {
-
 		this.animals.add(animal);
 		support.firePropertyChange(ANIMAL, 1, 2);
 	}
@@ -46,7 +45,6 @@ public class Farm {
 	}
 
 	public void removeItem(Item item) {
-
 		int oldValue = this.items.size();
 		if (items.contains(item)) {
 			items.remove(item);
@@ -56,20 +54,16 @@ public class Farm {
 	}
 
 	public void addItem(Item item) {
-
 		this.items.add(item);
-
 		support.firePropertyChange(ITEM, 1, 2);
 	}
 
 	public void setItems(List<Item> items) {
-
 		this.items = items;
 		support.firePropertyChange(ITEM, 1, 2);
 	}
 
 	public void removeAnimal(Animal animal) {
-
 		int oldValue = this.animals.size();
 		if (animals.contains(animal)) {
 			animals.remove(animal);
@@ -79,19 +73,16 @@ public class Farm {
 	}
 
 	public void setPaddocks(List<Paddock> paddocks) {
-
 		this.paddocks = paddocks;
 		support.firePropertyChange(PADDOCK, 1, 2);
 	}
 
 	public void addPaddock(Paddock paddock) {
-
 		this.paddocks.add(paddock);
 		support.firePropertyChange(PADDOCK, 1, 2);
 	}
 
 	public void removePaddock(Paddock paddock) {
-
 		int oldValue = this.paddocks.size();
 		if (paddocks.contains(paddock)) {
 			paddocks.remove(paddock);
@@ -106,7 +97,6 @@ public class Farm {
 
 	public Farm(Farmer farmer) {
 		this.farmer = farmer;
-
 	}
 
 	public Farmer getFarmer() {

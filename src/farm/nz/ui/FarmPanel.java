@@ -1,6 +1,7 @@
 package farm.nz.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,6 +14,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,7 +38,6 @@ public class FarmPanel extends JPanel {
 
 	class ButtonEditor extends DefaultCellEditor {
 		protected JButton button;
-
 		private int indexCol;
 		private int indexRow;
 		private boolean isPushed;
@@ -62,24 +63,26 @@ public class FarmPanel extends JPanel {
 				if (indexCol == 4) {
 					animal.setHappy(animal.getHappy() + 2);
 					game.incrementActionCount();
-
 				}
 				animalTable.repaint();
 			}
 		}
 
 		public void doCropAction(Crop crop) {
-
 			if (!game.hasActions()) {
 				this.showInsufficientActions();
 			} else {
-				if (indexCol == 4) {
-					if (null != crop && crop.getMaturity() != 0) {
+				if (indexCol == 4) { // water
+					if (null == crop) {
+						this.showNoCropActions();
+					} else if (crop.getMaturity() != 0) {
 						crop.setMaturity(crop.getMaturity() - 1);
 						game.incrementActionCount();
 					}
-				} else if (indexCol == 6) {
-					if (null != crop && crop.isMature(game)) {
+				} else if (indexCol == 6) { // harvest
+					if (null == crop) {
+						this.showNoCropActions();
+					} else if (crop.isMature(game)) {
 						game.setAccount(game.getAccount() + crop.getSalePrice());
 						Paddock paddock = game.getFarm().getPaddocks().get(indexRow);
 						paddock.setCrop(null);
@@ -96,16 +99,13 @@ public class FarmPanel extends JPanel {
 
 		public Object getCellEditorValue() {
 			if (isPushed) {
-
 				if (model instanceof FarmAnimalTableModel) {
 					Animal animal = game.getFarm().getAnimals().get(indexRow);
 					this.doAnimalAction(animal);
 				} else if (model instanceof FarmPaddockTableModel) {
 					Crop crop = game.getFarm().getPaddocks().get(indexRow).getCrop();
 					this.doCropAction(crop);
-				} // else if (model instanceof FarmItemTableModel) {
-					// Item item = game.getFarm().getItems().get(indexRow);
-					// }
+				}
 			}
 			isPushed = false;
 			return new String(label);
@@ -130,8 +130,15 @@ public class FarmPanel extends JPanel {
 		}
 
 		public void showInsufficientActions() {
-			JOptionPane.showMessageDialog(button, "There are no more actions left today.\nMove to next day (menu)",
+			JOptionPane.showMessageDialog(button,
+					"There are no more actions left today.\n\nMove to next day (File > Go to next day)",
 					"No daily actions", JOptionPane.ERROR_MESSAGE);
+		}
+
+		public void showNoCropActions() {
+			JOptionPane.showMessageDialog(button,
+					"There is no crop planted in this paddock. \n\nVisit the General Store to buy/plant crops.",
+					"No crop planted", JOptionPane.ERROR_MESSAGE);
 		}
 
 		public boolean stopCellEditing() {
@@ -162,7 +169,6 @@ public class FarmPanel extends JPanel {
 
 	class ComboBoxEditor extends DefaultCellEditor {
 		protected JComboBox<String> comboButton;
-
 		private int rowSelected;
 		private boolean isPushed;
 		private String label;
@@ -190,11 +196,9 @@ public class FarmPanel extends JPanel {
 				if (!game.hasActions()) {
 					this.showInsufficientActions();
 				} else {
-
 					if (model instanceof FarmAnimalTableModel) {
 						Animal animal = game.getFarm().getAnimals().get(rowSelected);
 						this.doAction(animal, ANIMAL);
-
 					} else if (model instanceof FarmPaddockTableModel) {
 						Crop crop = game.getFarm().getPaddocks().get(rowSelected).getCrop();
 						if (null != crop) {
@@ -288,7 +292,6 @@ public class FarmPanel extends JPanel {
 			case Farm.ITEM:
 				itemTable.revalidate();
 			case Game.DAY:
-
 				paddockTable.repaint();
 				animalTable.repaint();
 			}
@@ -303,21 +306,17 @@ public class FarmPanel extends JPanel {
 	private JTable itemTable;
 	private JTable paddockTable;
 	protected String[] itemColumnToolTips = { null, "Crop bonus reduces days to harvest, Animal bonus adds to health",
-			"What you can use the item on" };
+			null };
 
-	/**
-	 * Create the panel.
-	 */
 	public FarmPanel(Game game) {
-		initialise(game);
 		this.game = game;
+		initialise();
 	}
 
 	public void addButton(JTable table, int col) {
 		TableColumn column = table.getColumnModel().getColumn(col);
 		column.setCellEditor(new ButtonEditor(new JCheckBox()));
 		column.setCellRenderer(new ButtonRenderer());
-
 	}
 
 	public void addComboBox(JTable table, int col, String type) {
@@ -326,7 +325,13 @@ public class FarmPanel extends JPanel {
 		column.setCellRenderer(new ButtonRenderer());
 	}
 
-	private void initialise(Game game) {
+	private void initialise() {
+		JPanel namePanel = new JPanel();
+		namePanel.setBounds(500, 0, 30, 30);
+		JLabel label = new JLabel("Farm");
+		label.setFont(new Font("Tahoma", Font.BOLD, 18));
+		namePanel.add(label);
+		namePanel.setSize(50, 30);
 		Farm farm = game.getFarm();
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		farm.addPropertyChangeListener(Farm.PADDOCK, new FarmModelListener(this));
@@ -335,14 +340,12 @@ public class FarmPanel extends JPanel {
 		game.addPropertyChangeListener(Game.DAY, new FarmModelListener(this));
 		tabbedPane.setBounds(50, 20, 700, 400);
 
-		List<Paddock> paddocks = farm.getPaddocks();
 		FarmPaddockTableModel paddockTableModel = new FarmPaddockTableModel(game);
 		paddockTable = new JTable(paddockTableModel);
 		this.addButton(paddockTable, 4);
 		this.addComboBox(paddockTable, 5, CROP);
 		this.addButton(paddockTable, 6);
 		JScrollPane paddockScroll = new JScrollPane(paddockTable);
-
 		tabbedPane.add("Paddocks", paddockScroll);
 
 		List<Animal> animals = farm.getAnimals();
@@ -369,11 +372,12 @@ public class FarmPanel extends JPanel {
 			}
 		};
 		JScrollPane itemScroll = new JScrollPane(itemTable);
-		tabbedPane.add("Items", itemScroll);
+		tabbedPane.add("Farm Supplies", itemScroll);
 
 		tabbedPane.add("Maintenance", new MaintenancePanel(game));
 
 		this.setLayout(null);
+		this.add(namePanel);
 		this.add(tabbedPane);
 
 	}

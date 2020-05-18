@@ -37,7 +37,6 @@ public class MaintenancePanel extends JPanel {
 
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			System.out.println("MaintenancePanel heard event fired " + evt.getPropertyName());
 			app.checkAnimalButton();
 			app.checkPaddockButton();
 		}
@@ -89,7 +88,9 @@ public class MaintenancePanel extends JPanel {
 		attributeSet = new SimpleAttributeSet();
 		try {
 			doc.insertString(doc.getLength(),
-					"Adding barn improvements uses one daily action and results in +3 Happiness randomly being added to an animal you own.\n\nThe action will be disabled if you have not yet purchased any animals from the General Store.",
+					"Adding barn improvements uses one daily action and results in +3 Happiness "
+							+ "randomly added to an animal you own.\n\nThe action will be disabled "
+							+ "if you have not yet purchased any animals from the General Store.",
 					attributeSet);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
@@ -135,7 +136,11 @@ public class MaintenancePanel extends JPanel {
 		attributeSet = new SimpleAttributeSet();
 		try {
 			doc.insertString(doc.getLength(),
-					"Improve your farm by clearing scrub from land and erecting a fence.  This will increase your number of paddocks and allow you to plant an additional crop, purchased from the General Store.\n\nIf you have reached the maximum number of paddocks for your farm type the action will be disabled. No further improvements are possible.",
+					"Improve your farm by clearing scrub from land and erecting a fence.  "
+							+ "This will increase your number of paddocks and allow you to plant an "
+							+ "additional crop, purchased from the General Store.\n\nIf you have reached "
+							+ "the maximum number of paddocks for your farm type this action will be disabled and "
+							+ "further improvements are not possible.",
 					attributeSet);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
@@ -170,8 +175,9 @@ public class MaintenancePanel extends JPanel {
 	}
 
 	public void showInsufficientActions(JButton button) {
-		JOptionPane.showMessageDialog(button, "There are no more actions left today.\nMove to next day (menu)",
-				"No daily actions", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(button,
+				"There are no actions left today.\n\nMove to the next day (File > Go to next day)", "Max daily actions",
+				JOptionPane.ERROR_MESSAGE);
 	}
 
 }
