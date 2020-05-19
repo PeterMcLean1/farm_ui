@@ -1,0 +1,13 @@
+weUse Case - Farmer Age Entry
+
+Requirement:
+User to be able to enter their age.
+Invalid entries rejected (number between 0 and 100).
+User to be able to check age entered correctly and replace if necessary.
+
+Test:
+Entry field for age entry
+Age requirements to be displayed
+Invalid age rejected (too big < 100)
+Invalid name rejected (not number)
+User to be able to check age, and replace if incorrect before continuing.

@@ -55,7 +55,8 @@ public class MaintenancePanel extends JPanel {
 	}
 
 	public void checkPaddockButton() {
-		paddockButton.setEnabled(game.getFarm().getType().getMaxPaddocks() > game.getFarm().getPaddocks().size());
+		paddockButton.setEnabled(
+				game.getFarm().getType().getMaxPaddocks() > game.getFarm().getPaddocks().size());
 	}
 
 	private void initialise(Game game) {
@@ -95,12 +96,12 @@ public class MaintenancePanel extends JPanel {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		GridBagConstraints gbc_bp = new GridBagConstraints();
-		gbc_bp.insets = new Insets(0, 0, 5, 5);
-		gbc_bp.fill = GridBagConstraints.BOTH;
-		gbc_bp.gridx = 0;
-		gbc_bp.gridy = 0;
-		this.add(barnPane, gbc_bp);
+		GridBagConstraints gbcBp = new GridBagConstraints();
+		gbcBp.insets = new Insets(0, 0, 5, 5);
+		gbcBp.fill = GridBagConstraints.BOTH;
+		gbcBp.gridx = 0;
+		gbcBp.gridy = 0;
+		this.add(barnPane, gbcBp);
 		barnButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -117,12 +118,12 @@ public class MaintenancePanel extends JPanel {
 			}
 		});
 		this.checkAnimalButton();
-		GridBagConstraints gbc_bb = new GridBagConstraints();
-		gbc_bb.insets = new Insets(0, 0, 0, 5);
-		gbc_bb.fill = GridBagConstraints.NONE;
-		gbc_bb.gridx = 0;
-		gbc_bb.gridy = 1;
-		this.add(barnButton, gbc_bb);
+		GridBagConstraints gbcBb = new GridBagConstraints();
+		gbcBb.insets = new Insets(0, 0, 0, 5);
+		gbcBb.fill = GridBagConstraints.NONE;
+		gbcBb.gridx = 0;
+		gbcBb.gridy = 1;
+		this.add(barnButton, gbcBb);
 
 		JTextPane paddockPane = new JTextPane();
 		attributeSet = new SimpleAttributeSet();
@@ -145,12 +146,12 @@ public class MaintenancePanel extends JPanel {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		GridBagConstraints gbc_pp = new GridBagConstraints();
-		gbc_pp.insets = new Insets(0, 0, 5, 5);
-		gbc_pp.fill = GridBagConstraints.BOTH;
-		gbc_pp.gridx = 1;
-		gbc_pp.gridy = 0;
-		this.add(paddockPane, gbc_pp);
+		GridBagConstraints gbcPp = new GridBagConstraints();
+		gbcPp.insets = new Insets(0, 0, 5, 5);
+		gbcPp.fill = GridBagConstraints.BOTH;
+		gbcPp.gridx = 1;
+		gbcPp.gridy = 0;
+		this.add(paddockPane, gbcPp);
 
 		paddockButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -166,18 +167,22 @@ public class MaintenancePanel extends JPanel {
 			}
 		});
 		this.checkPaddockButton();
-		GridBagConstraints gbc_pb = new GridBagConstraints();
-		gbc_pb.insets = new Insets(0, 0, 0, 5);
-		gbc_pb.gridx = 1;
-		gbc_pb.gridy = 1;
-		this.add(paddockButton, gbc_pb);
+		GridBagConstraints gbcPb = new GridBagConstraints();
+		gbcPb.insets = new Insets(0, 0, 0, 5);
+		gbcPb.gridx = 1;
+		gbcPb.gridy = 1;
+		this.add(paddockButton, gbcPb);
 
 	}
 
+	/**
+	 * 
+	 * @param button
+	 */
 	public void showInsufficientActions(JButton button) {
 		JOptionPane.showMessageDialog(button,
-				"There are no actions left today.\n\nMove to the next day (File > Go to next day)", "Max daily actions",
-				JOptionPane.ERROR_MESSAGE);
+				"There are no actions left today.\n\nMove to the next day (File > Go to next day)",
+				"Max daily actions", JOptionPane.ERROR_MESSAGE);
 	}
 
 }

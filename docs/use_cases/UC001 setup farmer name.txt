@@ -1,0 +1,15 @@
+Use Case - Farmer Name Entry
+
+Requirement:
+User to be able to enter a player name that is between 3 and 15 characters and contain no special characters.
+Name requirements to be displayed before entry.
+Invalid names to be rejected.
+User to be able to check name entered correctly.
+
+Test:
+Entry field for name entry
+Name requirements to be displayed
+Invalid name rejected (too short <3)
+Invalid name rejected (too long >15)
+Invalid name rejected (special characters)
+User to be able to check name, and replace if incorrect before continuing.

@@ -19,6 +19,10 @@ public class Paddock {
 		return crop;
 	}
 
+	/**
+	 * 
+	 * @param crop
+	 */
 	public void setCrop(Crop crop) {
 		Crop crop1 = this.crop;
 		this.crop = crop;

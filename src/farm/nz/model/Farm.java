@@ -44,6 +44,10 @@ public class Farm {
 		return items;
 	}
 
+	/**
+	 * 
+	 * @param item
+	 */
 	public void removeItem(Item item) {
 		int oldValue = this.items.size();
 		if (items.contains(item)) {
@@ -63,6 +67,10 @@ public class Farm {
 		support.firePropertyChange(ITEM, 1, 2);
 	}
 
+	/**
+	 * 
+	 * @param animal
+	 */
 	public void removeAnimal(Animal animal) {
 		int oldValue = this.animals.size();
 		if (animals.contains(animal)) {
@@ -82,6 +90,10 @@ public class Farm {
 		support.firePropertyChange(PADDOCK, 1, 2);
 	}
 
+	/**
+	 * 
+	 * @param paddock
+	 */
 	public void removePaddock(Paddock paddock) {
 		int oldValue = this.paddocks.size();
 		if (paddocks.contains(paddock)) {

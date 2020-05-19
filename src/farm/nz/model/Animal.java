@@ -8,6 +8,15 @@ public class Animal extends StoreItem implements Cloneable {
 	private int baseIncome; // income produced daily from animal
 	private AnimalType type;
 
+	/**
+	 * 
+	 * @param type
+	 * @param happy
+	 * @param health
+	 * @param price
+	 * @param baseIncome
+	 * @param residual
+	 */
 	public Animal(AnimalType type, int happy, int health, int price, int baseIncome, int residual) {
 		super(price, residual);
 		this.happy = happy;
@@ -20,6 +29,10 @@ public class Animal extends StoreItem implements Cloneable {
 		return baseIncome;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getDailyIncome() {
 		int bonusIncome = (this.happy + this.health) / 2;
 		return baseIncome + bonusIncome;

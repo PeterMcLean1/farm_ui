@@ -37,12 +37,12 @@ import farm.nz.ui.InstructionPanel;
 import farm.nz.ui.SetupPanel;
 import farm.nz.ui.StorePanel;
 
-public class FarmUIApplication extends JFrame {
+public class FarmUiApplication extends JFrame {
 
 	class StoreModelListener implements PropertyChangeListener {
-		private FarmUIApplication app;
+		private FarmUiApplication app;
 
-		public StoreModelListener(FarmUIApplication app) {
+		public StoreModelListener(FarmUiApplication app) {
 			super();
 			this.app = app;
 		}
@@ -53,14 +53,14 @@ public class FarmUIApplication extends JFrame {
 		}
 	}
 
-	final static String FARM_PANEL = "Farm";
+	static final String FARM_PANEL = "Farm";
 	private static final long serialVersionUID = 1L;
 	// Menu options
-	final static String SETUP_PANEL = "Set up";
-	final static String STORE_PANEL = "General Store";
-	final static String HELP = "Instructions";
-	final static String MOVE_DAY_PANEL = "Go to next day";
-	public final static String START_GAME = "Start";
+	static final String SETUP_PANEL = "Set up";
+	static final String STORE_PANEL = "General Store";
+	static final String HELP = "Instructions";
+	static final String MOVE_DAY_PANEL = "Go to next day";
+	public static final String START_GAME = "Start";
 
 	/**
 	 * Launch the application.
@@ -69,7 +69,7 @@ public class FarmUIApplication extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FarmUIApplication application = new FarmUIApplication();
+					FarmUiApplication application = new FarmUiApplication();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -86,7 +86,7 @@ public class FarmUIApplication extends JFrame {
 	/**
 	 * Create the application.
 	 */
-	public FarmUIApplication() {
+	public FarmUiApplication() {
 		initialise();
 	}
 
@@ -100,6 +100,11 @@ public class FarmUIApplication extends JFrame {
 		cl.show(startCards, card);
 	}
 
+	/**
+	 * 
+	 * @param pane
+	 * @param game
+	 */
 	public void addComponentToPane(Container pane, Game game) {
 
 		JPanel topPane = new JPanel(); // use default FlowLayout
@@ -157,9 +162,9 @@ public class FarmUIApplication extends JFrame {
 
 		// create the game view cards
 		// JPanel card1 = new SetupPanel(this, game);
-		JPanel card2 = new InstructionPanel();
-		JPanel card3 = new FarmPanel(game);
-		JPanel card4 = new StorePanel(game);
+		final JPanel card2 = new InstructionPanel();
+		final JPanel card3 = new FarmPanel(game);
+		final JPanel card4 = new StorePanel(game);
 
 		// Create the panel with card layout and add the "cards" to it.
 		cards = new JPanel(new CardLayout());
@@ -209,7 +214,8 @@ public class FarmUIApplication extends JFrame {
 			StringBuffer sb = new StringBuffer();
 			sb.append("Farm name: " + farm.getName() + "\n");
 			sb.append("Game duration: " + game.getDaysToPlay() + "\n");
-			sb.append("Profit made: " + (game.getAccount() - game.getFarm().getType().getStartMoney()) + "\n\n");
+			sb.append("Profit made: "
+					+ (game.getAccount() - game.getFarm().getType().getStartMoney()) + "\n\n");
 			sb.append("Final score: " + score + "\n");
 
 			JOptionPane.showMessageDialog(this, sb, "GAME OVER", JOptionPane.ERROR_MESSAGE);
@@ -221,7 +227,7 @@ public class FarmUIApplication extends JFrame {
 	}
 
 	/**
-	 * Start of day logic
+	 * Start of day logic.
 	 * 
 	 * @param game Used to track game instance progress
 	 */
@@ -289,7 +295,8 @@ public class FarmUIApplication extends JFrame {
 				}
 
 				// eventScreen(sb, game);
-				JOptionPane.showMessageDialog(this, sb, "!!! SEVERE WEATHER WARNING !!!", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this, sb, "!!! SEVERE WEATHER WARNING !!!",
+						JOptionPane.WARNING_MESSAGE);
 				break;
 			case 1:
 				// fence break
@@ -329,7 +336,8 @@ public class FarmUIApplication extends JFrame {
 				sb.append(") have escaped through a broken fence and are lost forever!\n");
 				sb.append("The remaining animals are not so happy.");
 				// eventScreen(sb, game);
-				JOptionPane.showMessageDialog(this, sb, "!!! BROKEN FENCE !!!", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this, sb, "!!! BROKEN FENCE !!!",
+						JOptionPane.WARNING_MESSAGE);
 				break;
 			case 2:
 				// win county fair
@@ -353,8 +361,11 @@ public class FarmUIApplication extends JFrame {
 				sb.append(winnings);
 				sb.append(") have been added to your farm account.");
 				// eventScreen(sb, game);
-				JOptionPane.showMessageDialog(this, sb, "!!! COUNTY FAIR AWARDS !!!", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, sb, "!!! COUNTY FAIR AWARDS !!!",
+						JOptionPane.INFORMATION_MESSAGE);
 				break;
+			default:
+				// empty
 
 			}
 		}
@@ -389,8 +400,12 @@ public class FarmUIApplication extends JFrame {
 
 	}
 
+	/**
+	 * 
+	 */
 	public void setLabelText() {
-		statusLabel.setText("Day " + game.getCurrentDay() + "/" + game.getDaysToPlay() + "  |  Action "
-				+ game.getActionCount() + "/" + game.getMaxDailyActions() + "  |  $" + game.getAccount() + "  ");
+		statusLabel.setText("Day " + game.getCurrentDay() + "/" + game.getDaysToPlay()
+				+ "  |  Action " + game.getActionCount() + "/" + game.getMaxDailyActions()
+				+ "  |  $" + game.getAccount() + "  ");
 	}
 }

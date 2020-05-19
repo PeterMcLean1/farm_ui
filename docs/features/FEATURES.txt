@@ -1,0 +1,265 @@
+Features List
+
+F001_SETUP
+Add setup question flow to GPE
+.setGameDays(game); // Rq 2.1
+.setName(farmer); // Rq 2.2.1
+.setAge(farmer); // Inferred by 3.2
+.setFarmType(farm); // Rq 2.2.2
+.setFarmName(farm); // Rq 2.2.3
+
+Start game
+Add a method to be able to add program logic before the game displays the first screen
+e.g. - determine starting money per farm type
+
+T001_SETUP
+game day < 5 should fail
+game day > 10 should fail
+game day between 5-10 should pass
+any other keyboard input should fail
+farmer name too short (<3) should fail 
+farmer name too long (>15) should fail
+farmer name with corrected number of characters (3-15) but with special characters should fail
+farmer name between length 3-15 with no special characters should pass
+farm name too long (>25) should fail
+farm name of length between 1-25 should pass
+farmer age too big (>100) should fail
+farmer age too small (<1) should fail
+farmer age containing anything but number input should fail
+farmer age between 1-100 should pass
+farm type between 1-4 should pass
+farm type should default to 1 for any other input
+// TODO User to be able to check name, and replace if incorrect before continuing.
+
+F002_HEADER
+Implement a header() method to display important information on every screen. Include:
+- Name of farm
+- Farm account // Rq 2.3.2
+- Day X of X
+- Daily actions remaining
+
+T002_HEADER
+start of game should start at day 1 of game days
+day should increment at the start of the new day
+account should start at $50 when starting a new game
+purchases should be deducted from account
+actions should be 0 at the start of each new day
+sales should be added to account
+name of farm should be displayed
+after actions used it should increment to a maximum of 2
+no more actions allowed after maximum
+
+
+F003_MAIN_SCREEN
+Display MAIN_SCREEN
+Add required options to the Main screen
+- 	1. View Crops -> VIEW_CROPS // Rq 2.3.1
+-	2. View Animals -> VIEW_ANIMALS// Rq 2.3.1
+- 	3. View Supplies -> VIEW_ITEMS // 
+-	4. Improve Farm -> FARM_MAINTENANCE // Rq 2.3.5.5
+-	5. Visit Store -> VISIT_STORE // Rq 2.3.3
+-	6. Move to next day -> NEXT_DAY // Rq 2.3.4
+-   6. End Game -> END_GAME
+
+T003_MAIN_SCREEN
+for options 1-5 user moves to the correct page
+for option 6, the header increments the day and actions reset to 0 and daily income from animals added to account.
+on the last day when option 6 is selected the game ends and user is sent to the game over screen.
+
+F004_VIEW_CROPS
+Display VIEW_CROPS screen
+List paddocks to select.
+Note: Paddocks are a slot for crops, can be empty (null) or hold one crop
+Display the crop, days grown, and day to harvest on the line beside each paddock
+If paddock has crop select to -> TEND_CROP // Rq 2.3.5.1(b)
++optional return to MAIN_SCREEN
+
+T004_VIEW_CROPS
+paddocks without crops are not able to be selected
+paddocks with crops are able to be selected
+all paddocks are displayed (crop, days grown, days to harvest)
+
+F005_TEND_CROPS
+Display TEND_CROP
+Show which crop is selected and give options to tend crop
+- water, decrease growing time by set amount, increment actions -> VIEW_CROPS// Rq 2.3.5.1(c)
+- item -> VIEW_CROP_ITEMS
+- harvest (only if ready), add crop.salePrice to farm account, remove crop, increment actions
++optional return to VIEW_CROPS
+
+T005_TEND_CROPS
+Harvest can only be selected if the crop is ready. sale price added to account and actions are incremented and go to the VIEW_CROPS screen
+selecting water decreases the growing time of the crop, actions are incremented and go to the VIEW_CROPS screen
+selecting item takes you to the VIEW_CROP_ITEMS screen
+
+F006_VIEW_CROP_ITEMS
+Display VIEW_CROP_ITEMS
+Show a list of farm items that are able to be selected and used on crops
+- item, decrease growing time by item bonus // Rq 2.3.5.1(c), 
+remove item, increment actions -> VIEW_CROPS
++optional return to VIEW_CROPS
+
+T006_VIEW_CROP_ITEMS
+only crop items bought from store are displayed
+items selected decrease the growing time of the crop, increment actions and once used removed from farm inventory.
+taken back to the VIEW_CROPS screen once item used or returned
+
+F007_VIEW_ANIMALS
+Display VIEW_ANIMALS
+Show a list of farm animals and allow user to select one -> VIEW_ANIMAL
++optional return to MAIN_SCREEN
+
+T007_VIEW_ANIMALS
+animals bought from the store are displayed
+selecting an animal takes you to the VIEW_ANIMAL screen
+if no animals are present, displays a hint to let player know where they can buy some
+selecting return or any other input brings player back to MAIN_SCREEN
+
+F008_VIEW_ANIMAL
+Display VIEW_ANIMAL
+show which animal is selected and give options to tend animal
+- Play with animal, increase happiness +2 //Rq 2.3.5.3
+- Use item on animal (could be food or treatment) -> VIEW_ANIMAL_ITEMS
++optional return to VIEW_ANIMALS
+
+T008_VIEW_ANIMAL
+selecting play with animal increases the happiness of the animal by 2 and sends player back to VIEW_ANIMALS screen. increments actions
+selecting use item on animal sends player to the VIEW_ANIMAL_ITEMS screen
+selecting return or any other input sends player to VIEW_ANIMALS screen
+
+F009_VIEW_ANIMAL_ITEMS
+Display VIEW_ANIMAL_ITEMS
+Show a list of farm items that are able to be selected and used on animals
+- Item, increase animal health by the bonus of the item selected // Rq 2.3.5.2(a), 
+remove item, increment actions -> VIEW_ANIMALS
++optional return to VIEW_ANIMALS
+
+T009_VIEW_ANIMAL_ITEMS
+list of animal items bought from the store are displayed
+if no animal items are present, there is a hint displayed to show where player can buy some
+if animal item is selected, the bonus is added to the animals health, actions incremented by 1 and item is removed from the farms inventory.
+selecting return takes player back to VIEW_ANIMALS
+
+F010_VIEW_ITEMS
+Display VIEW_ITEMS
+Show a list of farm items and show whether they are applicable to CROP and/or ANIMAL and/or SKILL.
++optional return to MAIN_SCREEN
+
+T010_VIEW_ITEMS
+displays a list of all the items bought from the store and whether they are for crops or animals or skill.
+if no items are present a hint is displayed showing where the player can buy some
+selecting return takes player back to MAIN_SCREEN
+
+F011_FARM_MAINTENANCE
+Display FARM_MAINTENANCE
+Show a list of farm maintenance actions:
+- Clear Land, which will increase paddock count up to maximum paddocks, increment daily actions// Rq 2.3.5.5(b)
+- Repair barn, which will increase animal health, increment daily actions// Rq 2.3.5.5(b)
++optional return to MAIN_SCREEN
+
+T011_FARM_MAINTENANCE
+if clear land is selected, actions are incremented and paddock count is incremented to maximum paddocks.
+if repair barn is selected, animal health is increased and actions are incremented.
+if actions are at the limit, no action can be selected.
+selecting return takes player back to MAIN_SCREEN
+
+
+
+F012_GENERAL_STORE
+Display GENERAL_STORE
+Show a list of general store actions:
+-buy and plant crops, -> BUY_CROP
+-buy animals, -> BUY_ANIMAL
+-buy supplies, -> BUY_ITEM
++optional return to MAIN_SCREEN
+
+T012_GENERAL_STORE
+selecting 1-3 takes the player to the correct page
+selecting return or any other input takes the player back to MAIN_SCREEN
+
+F013_BUY_CROP
+Display BUY_CROP
+Show how many empty paddocks the farm has
+Show a list of crops available to purchase
+-selecting a crop takes money off the farm account and plants it in the first empty paddock
++optional return to GENERAL_STORE
+
+T013_BUY_CROP
+shows the correct number of empty paddocks
+shows a list of the crops available to purchase
+selecting a crop takes money off the farm account and plants it in the first empty paddock
+if the purchase price > account, the player is not able to buy the crop and taken back to BUY_CROP screen
+
+
+F014_BUY_ANIMAL
+Display BUY_ANIMAL
+Show a list of animals available to purchase
+-selecting a animal takes money off the farm account and places the animal on the farm (Barn)
++optional return to GENERAL_STORE
+
+T014_BUY_ANIMAL
+shows a list of animals available to purchase
+selecting an animal takes money off the farm account and adds the animal to the farm
+if the purchase price > account, the player is not able to buy the animal and taken back to BUY_ANIMAL screen
+
+F015_BUY_ITEM
+Display BUY_ITEM
+Show a list of items available to purchase and their bonuses
+-selecting a item takes money off the farm account and places the item in the farm inventory for later use
++optional return to GENERAL_STORE
+
+T015_BUY_ITEM
+shows a list of items available to purchase
+selecting an item takes money off the farm account and adds the item to the farm inventory
+if the purchase price > account, the player is not able to buy the item and taken back to BUY_ITEM screen
+
+F016_NEXT_DAY
+NEXT_DAY
+on the last day next day ends the game -> END_GAME
+increments the current day by 1 and refreshes action count back to 0
+decay animal health and happiness (if no training)
+adds animal bonuses to farm account
+chance for random event to occur -> DROUGHT/BROKEN_FENCE/COUNTY_FAIR
+->MAIN_SCREEN
+
+T016_NEXT_DAY
+increments the current day by 1 and refreshes action count back to 0
+if player has not bought the skill training from the store, animal health and happiness are decreased by 1
+daily animal bonuses are added to the farm account
+chance for a random event to occur
+
+F017_EVENT_DROUGHT
+DROUGHT
+get farm crops and delete half (rounded down)
+->MAIN_SCREEN
+
+T017_EVENT_DROUGHT
+half of all crops are removed from the paddocks
+
+F018_EVENT_BROKEN_FENCE
+BROKEN_FENCE
+remove one or more of all farm animals
+remaining animals lose 'substantial' happiness
+->MAIN_SCREEN
+
+T018_EVENT_BROKEN_FENCE
+one or more farm animals are removed from the farm
+the remaining animals happiness is decreased by 2
+
+F019_EVENT_COUNTY_FAIR
+COUNTY_FAIR
+win county fair
+add 'reasonable' sum of money to farm account
+money earned scaled number of farm crops and animals
+->MAIN_SCREEN
+
+T019_EVENT_COUNTY_FAIR
+money added to farm account based on number of animals and crops.
+
+
+F020_END_GAME
+Display end game screen with score based on the account value and the residual value of crops, items and animals.
+
+T020_END_GAME
+end game screen is displayed with a score
+score is the farm account + the residual value of crops, items, and animals on the farm.

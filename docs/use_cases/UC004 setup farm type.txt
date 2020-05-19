@@ -1,0 +1,12 @@
+Use Case - Farm Type selection
+
+Requirement:
+User to be able to select the farm type from list (4)
+Options 1. Flat, 2, Hill, 3. River, 4. Forest
+Default 1. Flat (for all other entries)
+User to be able to check farm type entered correctly and replace if necessary.
+
+Test:
+Display correct options (1-4)
+Invalid entry default to Flat (1)
+User to be able to check farm type, and replace if incorrect before continuing.

@@ -5,10 +5,18 @@ import farm.nz.type.CropType;
 public class Crop extends StoreItem implements Cloneable {
 	private CropType type;
 	private int salePrice;
-	private int maturity;// days from planting to harvest
-	private int dayPlanted;// day planted
+	private int maturity; // days from planting to harvest
+	private int dayPlanted; // day planted
 	private Paddock paddock;
 
+	/**
+	 * 
+	 * @param type
+	 * @param price
+	 * @param salePrice
+	 * @param maturity
+	 * @param residual
+	 */
 	public Crop(CropType type, int price, int salePrice, int maturity, int residual) {
 		super(price, residual);
 		this.type = type;

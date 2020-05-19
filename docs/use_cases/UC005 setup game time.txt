@@ -1,0 +1,14 @@
+Use Case - Game run time
+
+Requirement:
+User to be able to enter a length of play (5-10).
+Invalid entries rejected (numbers greater than 10 or less than 5, or not a number).
+User to be able to check length of play entered correctly and replace if necessary.
+
+Test:
+Entry field for length of play
+Length of play requirements to be displayed (5-10 days)
+Invalid entry rejected (greater than 10)
+Invalid entry rejected (less than 5)
+Invalid entry rejected (not number)
+User to be able to check length of play, and replace if incorrect before continuing.

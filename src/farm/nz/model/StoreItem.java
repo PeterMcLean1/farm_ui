@@ -1,6 +1,6 @@
 package farm.nz.model;
 
-public class StoreItem {
+public abstract class StoreItem {
 
 	private int purchasePrice;
 	private int residualValue;
@@ -9,6 +9,11 @@ public class StoreItem {
 
 	}
 
+	/**
+	 * 
+	 * @param purchasePrice
+	 * @param residualValue
+	 */
 	public StoreItem(int purchasePrice, int residualValue) {
 		this.purchasePrice = purchasePrice;
 		this.residualValue = residualValue;

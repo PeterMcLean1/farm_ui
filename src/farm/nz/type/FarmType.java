@@ -8,17 +8,18 @@ public enum FarmType {
 	private final int animalBonus;
 	private final int startMoney;
 	/**
-	 * The maximum number of paddocks allowed for this type of farm
+	 * The maximum number of paddocks allowed for this type of farm.
 	 */
 	private final int maxPaddocks;
 	/**
-	 * Display name of this farm type
+	 * Display name of this farm type.
 	 */
 	private final String display;
 
 	private final String difficulty;
 
-	FarmType(int eventChance, int animalBonus, int maxPaddocks, int startMoney, String display, String difficulty) {
+	FarmType(int eventChance, int animalBonus, int maxPaddocks, int startMoney, String display,
+			String difficulty) {
 		this.eventChance = eventChance;
 		this.animalBonus = animalBonus;
 		this.maxPaddocks = maxPaddocks;

@@ -1,0 +1,19 @@
+Project Plan 21 Apr to 25 May
+
+1. Class diagram (whiteboard)
+
+2. UML diagrams
+	2.1 Actors
+	2.2 Use cases
+
+3. Create starter project and add to github in order to share code with team
+4. Create classes from class diagram
+5. Create enums from class diagram
+6. Create utility classes as game play environment (GPE)
+7. Develop feature list
+8. Implement features
+9. Manual testing
+10. Write Unit tests
+
+11. Move to GUI version
+

@@ -12,6 +12,9 @@ public class Store {
 	private List<Item> itemList = new ArrayList<Item>();
 	private List<Animal> animalList = new ArrayList<Animal>();
 
+	/**
+	 * 
+	 */
 	public Store() {
 		// (CropType type, int purchasePrice, int salePrice, int maturity, int residual)
 		cropList.add(new Crop(CropType.CORN, 5, 20, 4, 6));

@@ -27,7 +27,18 @@ public class Item extends StoreItem implements Cloneable {
 	 */
 	private int bonus;
 
-	public Item(ItemType type, boolean crop, boolean animal, boolean skill, int price, int bonus, int residual) {
+	/**
+	 * 
+	 * @param type
+	 * @param crop
+	 * @param animal
+	 * @param skill
+	 * @param price
+	 * @param bonus
+	 * @param residual
+	 */
+	public Item(ItemType type, boolean crop, boolean animal, boolean skill, int price, int bonus,
+			int residual) {
 		super(price, residual);
 		this.type = type;
 		this.crop = crop;
@@ -74,7 +85,7 @@ public class Item extends StoreItem implements Cloneable {
 	/**
 	 * Sets whether this item can be used on a crop.
 	 * 
-	 * @param boolean Indicates if this item can be used on a crop.
+	 * @param crop Indicates if this item can be used on a crop.
 	 */
 	public void setCrop(boolean crop) {
 		this.crop = crop;
@@ -92,7 +103,7 @@ public class Item extends StoreItem implements Cloneable {
 	/**
 	 * Sets whether this item can be used on an animal.
 	 * 
-	 * @param boolean Indicates if this item can be used on an animal.
+	 * @param animal Indicates if this item can be used on an animal.
 	 */
 	public void setAnimal(boolean animal) {
 		this.animal = animal;
@@ -110,7 +121,7 @@ public class Item extends StoreItem implements Cloneable {
 	/**
 	 * Sets the bonus to apply to crop or animal when used.
 	 * 
-	 * @param int The bonus to apply to crop or animal when used.
+	 * @param bonus The bonus to apply to crop or animal when used.
 	 */
 	public void setBonus(int bonus) {
 		this.bonus = bonus;

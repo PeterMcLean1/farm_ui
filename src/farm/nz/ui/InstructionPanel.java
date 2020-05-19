@@ -22,21 +22,21 @@ public class InstructionPanel extends JPanel {
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
 
-		JLabel lblNewLabel = new JLabel("Instructions");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblNewLabel.gridx = 1;
-		gbc_lblNewLabel.gridy = 1;
-		add(lblNewLabel, gbc_lblNewLabel);
+		final JLabel lblNewLabel = new JLabel("Instructions");
+		GridBagConstraints gbcLblNewLabel = new GridBagConstraints();
+		gbcLblNewLabel.insets = new Insets(0, 0, 5, 0);
+		gbcLblNewLabel.anchor = GridBagConstraints.NORTHWEST;
+		gbcLblNewLabel.gridx = 1;
+		gbcLblNewLabel.gridy = 1;
+		add(lblNewLabel, gbcLblNewLabel);
 
-		JTextPane textPane = new JTextPane();
-		GridBagConstraints gbc_textPane = new GridBagConstraints();
-		gbc_textPane.gridheight = 2;
-		gbc_textPane.fill = GridBagConstraints.BOTH;
-		gbc_textPane.gridx = 1;
-		gbc_textPane.gridy = 2;
-		add(textPane, gbc_textPane);
+		final JTextPane textPane = new JTextPane();
+		GridBagConstraints gbcTextPane = new GridBagConstraints();
+		gbcTextPane.gridheight = 2;
+		gbcTextPane.fill = GridBagConstraints.BOTH;
+		gbcTextPane.gridx = 1;
+		gbcTextPane.gridy = 2;
+		add(textPane, gbcTextPane);
 		textPane.setText("The aim of the game is to make as much money as possible in the allocated time."
 				+ "\n\nYou are a farmer starting out on a new farm with a set amount of money. You need to fill it "
 				+ "with crops and animals purchased from the General Store to create income.\n\n- Animals give you a daily income "

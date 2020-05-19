@@ -53,8 +53,9 @@ public class StorePanel extends JPanel {
 
 		public boolean confirmPurchase(String type, int price) {
 			String message = "Buy " + type + " for $" + price + "?";
-			int input = JOptionPane.showConfirmDialog(button, message, "", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE);// 0=ok, 2=cancel
+			int input = JOptionPane.showConfirmDialog(button, message, "",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+			// 0=ok, 2=cancel
 			return (input == 0);
 		}
 
@@ -112,8 +113,8 @@ public class StorePanel extends JPanel {
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(button, "Not enough paddocks!", "Insufficient space for crop",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(button, "Not enough paddocks!",
+						"Insufficient space for crop", JOptionPane.ERROR_MESSAGE);
 			}
 			cropTable.repaint();
 
@@ -163,8 +164,8 @@ public class StorePanel extends JPanel {
 			return new String(label);
 		}
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
+				int row, int column) {
 			if (isSelected) {
 				button.setForeground(table.getSelectionForeground());
 				button.setBackground(table.getSelectionBackground());
@@ -181,7 +182,8 @@ public class StorePanel extends JPanel {
 		}
 
 		public void showInsufficientFunds() {
-			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(button, "Not enough money!", "Insufficient funds",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 		public boolean stopCellEditing() {
@@ -196,8 +198,8 @@ public class StorePanel extends JPanel {
 			setOpaque(true);
 		}
 
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column) {
 			if (isSelected) {
 				setForeground(table.getSelectionForeground());
 				setBackground(table.getSelectionBackground());
@@ -211,15 +213,18 @@ public class StorePanel extends JPanel {
 	}
 
 	private Game game;
+	private Store store = new Store();
 	private JTable cropTable;
 	private JTable animalTable;
 	private JTable itemTable;
-	protected String[] animalColumnToolTips = { null, null, "The base amount of income provided at the end of each day",
+	protected String[] animalColumnToolTips = { null, null,
+			"The base amount of income provided at the end of each day",
 			"The number of animals currently on your farm" };
 	protected String[] itemColumnToolTips = { null, null,
 			"Crop bonus reduces days to harvest, Animal bonus adds to health", null,
 			"The number of farm supplies currently on your farm", null };
-	protected String[] cropColumnToolTips = { null, null, "The price you can sell the crop for when harvested", null,
+	protected String[] cropColumnToolTips = { null, null,
+			"The price you can sell the crop for when harvested", null,
 			"The number of crops currently planted on your farm" };
 
 	public StorePanel(Game game) {
@@ -227,6 +232,11 @@ public class StorePanel extends JPanel {
 		initialise();
 	}
 
+	/**
+	 * 
+	 * @param table
+	 * @param col
+	 */
 	public void addButton(JTable table, int col) {
 		TableColumn column = table.getColumnModel().getColumn(col);
 		column.setCellEditor(new ButtonEditor(new JCheckBox()));
@@ -235,7 +245,6 @@ public class StorePanel extends JPanel {
 	}
 
 	private void initialise() {
-		Store store = new Store();
 
 		JPanel namePanel = new JPanel();
 		namePanel.setBounds(500, 0, 30, 30);

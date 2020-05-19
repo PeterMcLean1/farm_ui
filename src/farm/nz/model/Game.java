@@ -42,6 +42,10 @@ public class Game {
 		return account;
 	}
 
+	/**
+	 * 
+	 * @param account
+	 */
 	public void setAccount(int account) {
 		int oldValue = this.account;
 		int newValue = account;
@@ -54,7 +58,7 @@ public class Game {
 	}
 
 	/**
-	 * Used to determine if the player has more daily actions
+	 * Used to determine if the player has more daily actions.
 	 * 
 	 * @return Does this player have more daily actions today
 	 */
@@ -81,6 +85,10 @@ public class Game {
 		this.currentDay = currentDay;
 	}
 
+	/**
+	 * 
+	 * @param daysToPlay
+	 */
 	public void setDaysToPlay(int daysToPlay) {
 		this.daysToPlay = daysToPlay;
 		support.firePropertyChange(DAY, 1, 2);

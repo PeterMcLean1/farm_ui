@@ -1,0 +1,12 @@
+Use Case - Farm Name Entry
+
+Requirement:
+User to be able to enter a name for their farm.
+Farm name limited to 25 characters.
+User to be able to check age entered correctly and replace if necessary.
+
+Test:
+Entry field for farm name entry
+Length limit to be displayed
+Invalid name rejected (too long > 25)
+User to be able to check farm name, and replace if incorrect before continuing.

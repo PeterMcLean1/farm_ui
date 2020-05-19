@@ -111,8 +111,8 @@ public class FarmPanel extends JPanel {
 			return new String(label);
 		}
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
+				int row, int column) {
 			if (isSelected) {
 				button.setForeground(table.getSelectionForeground());
 				button.setBackground(table.getSelectionBackground());
@@ -153,8 +153,8 @@ public class FarmPanel extends JPanel {
 			setOpaque(true);
 		}
 
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column) {
 			if (isSelected) {
 				setForeground(table.getSelectionForeground());
 				setBackground(table.getSelectionBackground());
@@ -235,8 +235,8 @@ public class FarmPanel extends JPanel {
 			game.incrementActionCount();
 		}
 
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-				int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
+				int row, int column) {
 			if (isSelected) {
 				comboButton.setForeground(table.getSelectionForeground());
 				comboButton.setBackground(table.getSelectionBackground());
@@ -264,7 +264,8 @@ public class FarmPanel extends JPanel {
 		}
 
 		public void showInsufficientActions() {
-			JOptionPane.showMessageDialog(comboButton, "There are no more actions left today.\nMove to next day (menu)",
+			JOptionPane.showMessageDialog(comboButton,
+					"There are no more actions left today.\nMove to next day (menu)",
 					"No daily actions", JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -287,13 +288,19 @@ public class FarmPanel extends JPanel {
 			switch (evt.getPropertyName()) {
 			case Farm.ANIMAL:
 				animalTable.revalidate();
+				break;
 			case Farm.PADDOCK:
 				paddockTable.revalidate();
+				break;
 			case Farm.ITEM:
 				itemTable.revalidate();
+				break;
 			case Game.DAY:
 				paddockTable.repaint();
 				animalTable.repaint();
+				break;
+			default:
+				// empty
 			}
 		}
 	}
@@ -305,20 +312,31 @@ public class FarmPanel extends JPanel {
 	private Game game;
 	private JTable itemTable;
 	private JTable paddockTable;
-	protected String[] itemColumnToolTips = { null, "Crop bonus reduces days to harvest, Animal bonus adds to health",
-			null };
+	protected String[] itemColumnToolTips = { null,
+			"Crop bonus reduces days to harvest, Animal bonus adds to health", null };
 
 	public FarmPanel(Game game) {
 		this.game = game;
 		initialise();
 	}
 
+	/**
+	 * 
+	 * @param table
+	 * @param col
+	 */
 	public void addButton(JTable table, int col) {
 		TableColumn column = table.getColumnModel().getColumn(col);
 		column.setCellEditor(new ButtonEditor(new JCheckBox()));
 		column.setCellRenderer(new ButtonRenderer());
 	}
 
+	/**
+	 * 
+	 * @param table
+	 * @param col
+	 * @param type
+	 */
 	public void addComboBox(JTable table, int col, String type) {
 		TableColumn column = table.getColumnModel().getColumn(col);
 		column.setCellEditor(new ComboBoxEditor(new JComboBox<String>(), type));
@@ -333,7 +351,7 @@ public class FarmPanel extends JPanel {
 		namePanel.add(label);
 		namePanel.setSize(50, 30);
 		Farm farm = game.getFarm();
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		farm.addPropertyChangeListener(Farm.PADDOCK, new FarmModelListener(this));
 		farm.addPropertyChangeListener(Farm.ANIMAL, new FarmModelListener(this));
 		farm.addPropertyChangeListener(Farm.ITEM, new FarmModelListener(this));
